@@ -1,0 +1,70 @@
+
+==============================
+ HƯỚNG DẪN CÀI ĐẶT & CẤU HÌNH GIT, ĐẨY CODE LÊN GITHUB
+==============================
+
+I. CÀI ĐẶT VÀ CẤU HÌNH GIT
+-----------------------------------
+1. Tải & Cài đặt Git
+     - Truy cập: https://git-scm.com/downloads
+     - Tải về, mở file cài đặt và làm theo hướng dẫn.
+     - Sau khi cài xong, mở terminal và kiểm tra:
+         ```bash
+         git --version
+         ```
+         Nếu hiện ra như `git version 2.xx.x` là thành công.
+
+2. Cấu hình thông tin cá nhân cho Git
+     - Mở terminal, nhập:
+         ```bash
+         git config --global user.name "Tên của bạn"
+         git config --global user.email "email_github@example.com"
+         ```
+         (Lưu ý: Email phải trùng với email đăng ký Github)
+     - Kiểm tra lại cấu hình:
+         ```bash
+         git config --list
+         ```
+
+-----------------------------------
+II. KHỞI TẠO DỰ ÁN & ĐẨY CODE LÊN GITHUB
+-----------------------------------
+1. Tạo cấu trúc dự án
+     - Tạo một thư mục chính (tên tùy ý)
+     - Bên trong tạo 2 thư mục: `Backend` và `Frontend`
+
+2. Khởi tạo Git & commit đầu tiên
+     - Mở terminal tại thư mục gốc dự án
+     - Khởi tạo kho git cục bộ:
+         ```bash
+         git init
+         ```
+     - Thêm toàn bộ code vào vùng staging:
+         ```bash
+         git add .
+         ```
+     - Commit lần đầu:
+         ```bash
+         git commit -m "Ghi chú cho lần commit này"
+         ```
+
+3. Kết nối với Github & đẩy code lên
+     - Đặt tên nhánh chính:
+         ```bash
+         git branch -M master
+         ```
+     - Kết nối tới kho Github từ xa:
+         ```bash
+         git remote add origin https://github.com/1902VanHuongCoder/Lap-Trinh-Web.git
+         ```
+     - Đẩy code lên Github:
+         ```bash
+         git push -u origin master
+         ```
+
+-----------------------------------
+* Chúc bạn thành công! Nếu gặp lỗi, kiểm tra lại từng bước hoặc hỏi giảng viên hỗ trợ.
+
+
+
+
