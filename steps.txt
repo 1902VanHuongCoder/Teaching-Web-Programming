@@ -1,0 +1,28 @@
+CÁC BƯỚC CÀI ĐẶT MÔI TRƯỜNG ĐỂ LẬP TRÌNH DỰ ÁN WEBSITE THƯƠNG MẠI ĐIỆN TỬ BÁN SÁCH
+
+1. Tải NodeJS (phiên bản 18+)
+https://nodejs.org/en/download
+
+2. Tải MySQL 
+https://dev.mysql.com/downloads/installer/ 
+
+Lưu ý: Tải bản 2.1 M. Khi ấn vào download, nó sẽ chuyển đến trang tải xuống, không bấm vào nút "Login" hoặc "Signup"
+chỉ cần ấn vào dòng ở cuối trang "No thanks, just start my download" 
+
+3. Cài đặt các extension để format code như ESLint, Prettier 
+Gõ tên extension trong phần tải extension của VSCode 
+
+4. Tải Postman để test các API của Backend
+https://www.postman.com/downloads/ 
+
+5. Tạo kho trên Github để lưu trữ code dự án 
+https://github.com/1902VanHuongCoder
+
+---
+Lý do phải tải và cấu hình các nội dung trên: 
+1. NodeJS là môi trường chạy JavaScript phía server, cần thiết để phát triển backend cho web hiện đại, đồng thời hỗ trợ các công cụ build, quản lý thư viện frontend.
+2. MySQL là hệ quản trị cơ sở dữ liệu phổ biến, dùng để lưu trữ dữ liệu cho website như thông tin sách, người dùng, đơn hàng...
+3. Các extension như ESLint, Prettier giúp tự động kiểm tra, định dạng code, đảm bảo code sạch, dễ đọc, giảm lỗi cú pháp.
+4. Postman là công cụ kiểm thử API, giúp kiểm tra các chức năng backend mà không cần xây dựng giao diện frontend trước.
+5. Github giúp lưu trữ, quản lý phiên bản code, làm việc nhóm hiệu quả, dễ dàng khôi phục hoặc chia sẻ mã nguồn.
+
