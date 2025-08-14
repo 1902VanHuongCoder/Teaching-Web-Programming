@@ -1,4 +1,5 @@
 CÁC BƯỚC CÀI ĐẶT MÔI TRƯỜNG ĐỂ LẬP TRÌNH DỰ ÁN WEBSITE THƯƠNG MẠI ĐIỆN TỬ BÁN SÁCH
+Video: https://www.youtube.com/watch?v=4nZNknG38j8&t=64s 
 
 1. Tải NodeJS (phiên bản 18+)
 https://nodejs.org/en/download
