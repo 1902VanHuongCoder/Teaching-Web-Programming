@@ -22,28 +22,7 @@
 
 2️⃣  THÊM TAILWINDCSS ĐỂ CODE GIAO DIỆN
 -----------------------------------
-🛠️  Cài đặt TailwindCSS:
-  ```bash
-  npm install -D tailwindcss postcss autoprefixer
-  npx tailwindcss init -p
-  ```
-  (Sau khi chạy xong sẽ có file `tailwind.config.js`)
-
-📝  Sửa file `tailwind.config.js`:
-  ```js
-  export default {
-    content: ["./index.html","./src/**/*.{js,ts,jsx,tsx}"],
-    theme: { extend: {} },
-    plugins: [],
-  }
-  ```
-
-🎨  Thêm vào file `index.css`:
-  ```css
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
-  ```
+🛠️ Làm theo hướng dẫn của TailwindCSS document (tài liệu)
 
 ✅  Thử thêm vài class Tailwind vào component để kiểm tra hoạt động!
 

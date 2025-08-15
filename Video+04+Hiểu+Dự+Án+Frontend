@@ -1,0 +1,33 @@
+==============================
+📝 GIẢI THÍCH CÁC THÀNH PHẦN CHÍNH CỦA DỰ ÁN FRONTEND
+==============================
+
+- `node_modules/`: Thư mục chứa toàn bộ các thư viện (package) mà dự án cài đặt qua npm.
+
+- `public/`: Thư mục chứa các file tĩnh như favicon, ảnh, v.v. (nếu có), và file `index.html` gốc để React kết nối vào.
+
+- `src/`: Thư mục chứa toàn bộ mã nguồn chính của ứng dụng.
+
+	- `assets/`: Thư mục chứa các tài nguyên tĩnh dùng trong code, ví dụ hình ảnh (`react.svg`).
+	- `App.jsx`: Thành phần gốc (component root) của ứng dụng React.
+	- `App.css`: File CSS cho các thành phần trong ứng dụng.
+	- `index.css`: File CSS toàn cục, nơi import các cấu hình như TailwindCSS.
+	- `main.jsx`: File khởi tạo ứng dụng, nơi React được khởi động.
+        + Single page application - ReactJS 
+        + Multipage application 
+
+- `.gitignore`: Khai báo các file/thư mục không đưa lên Git (ví dụ node_modules).
+
+- `eslint.config.js`: File cấu hình ESLint để kiểm tra, chuẩn hóa code.
+
+- `index.html`: File HTML gốc, nơi React sẽ được kết nối vào (thường nằm trong public).
+
+- `package.json`: Khai báo thông tin dự án, các package cần thiết, script npm.
+
+- `package-lock.json`: Quản lý chính xác phiên bản các package đã cài.
+
+- `README.md`: File mô tả dự án, hướng dẫn sử dụng.
+
+- `vite.config.js`: File cấu hình cho Vite (công cụ build và dev server).
+
+-----------------------------------
