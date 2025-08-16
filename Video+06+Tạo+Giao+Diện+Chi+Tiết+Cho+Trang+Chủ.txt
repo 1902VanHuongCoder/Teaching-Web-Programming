@@ -1,0 +1,12 @@
+TẠO GIAO DIỆN CHI TIẾT HƠN CHO TRANG CHỦ 
+
+1. Tạo Thanh Điều Hướng 
+
+2. Tạo Banner 
+
+3. Tạo phần sách mới nhất 
+
+4. Tạo phần sách bán chạy 
+
+5. Tạo footer 
+
