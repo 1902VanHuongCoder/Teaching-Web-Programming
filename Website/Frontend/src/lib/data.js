@@ -2,6 +2,10 @@ import img5 from '../assets/image5.png';
 import img6 from '../assets/image6.png';
 import img7 from '../assets/image7.png';
 import img8 from '../assets/image8.png';
+import img211 from "../assets/image 21 (1).png"; 
+import img212 from "../assets/image 21 (2).png";
+import img21 from "../assets/image 21.png";
+import img30 from "../assets/image 30.png";
 export const bannerBooks = [
   {
     id: 9,
@@ -41,28 +45,29 @@ export const products = [
     maSP: 1,
     tenSP: "Truyện conan",
     gia: 100000,
-    giaGiam: 80000,
-    hinhAnh: img5
+    giaGiam: 20000,
+    hinhAnh: img5,
+    category: "kinh dị"
   },
   {
     maSP: 2,
     tenSP: "Truyện tranh",
     gia: 200000,
-    giaGiam: 80000,
+    giaGiam: 100000,
     hinhAnh: img6
   },
   {
     maSP: 3,
     tenSP: "Thần Đồng Đất Phương Nam",
     gia: 300000,
-    giaGiam: 80000,
+    giaGiam: 300000,
     hinhAnh: img7
   },
   {
     maSP: 4,
     tenSP: "Bạn Của Én",
     gia: 400000,
-    giaGiam: 80000,
+    giaGiam: 10000,
     hinhAnh: img8
   },
     {
@@ -94,4 +99,36 @@ export const products = [
     hinhAnh: img8
   }
 ]
+
+
+export const topProducts = [
+  {
+    maSP: 1,
+    tenSP: "Truyện conan",
+    gia: 100000,
+    giaGiam: 80000,
+    hinhAnh: img211,
+  },
+  {
+    maSP: 2,
+    tenSP: "Truyện tranh",
+    gia: 200000,
+    giaGiam: 80000,
+    hinhAnh: img212,
+  },
+  {
+    maSP: 3,
+    tenSP: "Thần Đồng Đất Phương Nam",
+    gia: 300000,
+    giaGiam: 80000,
+    hinhAnh: img21,
+  },
+  {
+    maSP: 4,
+    tenSP: "Bạn Của Én",
+    gia: 400000,
+    giaGiam: 80000,
+    hinhAnh: img30,
+  }
+];
 
