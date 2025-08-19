@@ -1,6 +1,6 @@
 import logo from "../assets/Red Panda.png";
 import { FaShoppingCart } from "react-icons/fa";
-
+import { Link } from "react-router-dom";
 function Navigation() {
   return (
     <nav className="px-6 py-4 flex justify-between items-center bg-[#00809D] text-white text-sm border-b-[1px] border-b-[rgba(255,255,255,.2)]">
@@ -19,9 +19,11 @@ function Navigation() {
       <div className="flex items-center space-x-4">
         <FaShoppingCart className="h-6 w-6" />
         <div className="space-x-0">
-          <button className="bg-white text-black px-4 py-2 rounded-full font-semibold">
-            Đăng nhập
-          </button>
+          <Link to="/dangnhap">
+            <button className="bg-white text-black px-4 py-2 rounded-full font-semibold">
+              Đăng nhập
+            </button>
+          </Link>
           <button className="hidden">Đăng xuất</button>
         </div>
       </div>

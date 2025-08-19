@@ -1,11 +1,45 @@
+import DangKy from './components/DangKy';
+import DangNhap from './components/DangNhap';
 import Homepage from './components/homepage/homepage'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import QuenMatKhau from './components/QuenMatKhau';
+import NhapMaOTP from './components/NhapMaOTP';
+import NhapMatKhauMoi from './components/NhapMatKhauMoi';
 function App() {
 
   return (
-    <>
-    <Homepage />
-    </>
-  )
+    <BrowserRouter>
+      {" "}
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/dangnhap" element={<DangNhap />} />
+        <Route path="/dangky" element={<DangKy />} />
+        <Route path="/quenmatkhau" element={<QuenMatKhau />} />
+        <Route path="/nhapmaotp" element={<NhapMaOTP />} />
+        <Route path="/nhapmatkhaumoi" element={<NhapMatKhauMoi />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App
+
+
+// import { BrowserRouter, Routes, Route } from 'react-router-dom';
+// import Homepage from './components/homepage/homepage';
+// // import other pages/components as needed
+
+// function App() {
+//   return (
+//     <BrowserRouter>
+//       <Routes>
+//         <Route path="/" element={<Homepage />} />
+//         {/* Add more routes here, e.g.:
+//         <Route path="/about" element={<About />} />
+//         */}
+//       </Routes>
+//     </BrowserRouter>
+//   );
+// }
+
+// export default App;
