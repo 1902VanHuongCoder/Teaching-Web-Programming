@@ -6,6 +6,7 @@ import QuenMatKhau from './components/QuenMatKhau';
 import NhapMaOTP from './components/NhapMaOTP';
 import NhapMatKhauMoi from './components/NhapMatKhauMoi';
 import ChiTietSanPham from './components/ChiTietSanPham';
+import ThanhToan from './components/ThanhToan';
 function App() {
 
   return (
@@ -19,6 +20,8 @@ function App() {
         <Route path="/nhapmaotp" element={<NhapMaOTP />} />
         <Route path="/nhapmatkhaumoi" element={<NhapMatKhauMoi />} />
         <Route path="/chitietsanpham" element={<ChiTietSanPham />} />
+        <Route path="/thanhtoan" element={<ThanhToan />} />
+
       </Routes>
     </BrowserRouter>
   );
