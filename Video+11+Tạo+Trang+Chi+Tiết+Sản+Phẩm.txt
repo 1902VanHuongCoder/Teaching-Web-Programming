@@ -1,0 +1,32 @@
+
+-----------------------------
+NỘI DUNG TRANG CHI TIẾT SẢN PHẨM
+-----------------------------
+
+I. Thông tin cơ bản
+------------------
+- Hình ảnh sản phẩm (1 hoặc nhiều ảnh)
+- Đánh giá (sao)
+- Tên sách
+- Tác giả
+- Nhà xuất bản
+- Ngày xuất bản
+- Ngôn ngữ của sách
+- Loại sách
+- Số trang
+- Định dạng của sách
+- Số lượng còn lại
+- Giá gốc
+- Giá giảm
+- ISBN13 (Mã số riêng của mỗi quyển sách)
+
+II. Chức năng mua hàng
+----------------------
+- Nút thêm vào giỏ hàng
+- Tăng giảm số lượng
+
+III. Thông tin bổ sung
+----------------------
+- Chi tiết sản phẩm
+- Bình luận
+- Sách liên quan
