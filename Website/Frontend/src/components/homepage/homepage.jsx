@@ -27,6 +27,7 @@ function Homepage() {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả"); // Danh mục được chọn
   const [selectedPrice, setSelectedPrice] = useState("all"); // Vùng giá được chọn
 
+  const [chuDeTrangWeb, setChuDeTrangWeb] = useState("light"); 
   // Tạo 2 biến trạng thái khác để lưu trữ danh mục và vùng giá được chọn cho sản phẩm bán chạy
 
   // Lọc sản phẩm theo danh mục và giá
@@ -52,7 +53,7 @@ function Homepage() {
   return (
     <div className="bg-[#00809D] min-h-screen h-fit">
       {/* Thanh điều hướng - Navigation */}
-      <Navigation />
+      <Navigation chuDeTrangWeb={chuDeTrangWeb} setChuDeTrangWeb={setChuDeTrangWeb} />
 
       {/* Banner - Banner */}
       <Banner />

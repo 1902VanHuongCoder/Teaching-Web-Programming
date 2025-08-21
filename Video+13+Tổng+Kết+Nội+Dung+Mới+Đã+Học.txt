@@ -1,0 +1,162 @@
+
+==============================
+TỔNG HỢP KIẾN THỨC ĐÃ HỌC TỪ DỰ ÁN
+==============================
+
+I. REACTJS
+------------------------------
+
+1. ReactJS là gì?
+------------------------------
+ReactJS là một thư viện JavaScript do Facebook phát triển (ra mắt năm 2013).
+Dùng để xây dựng giao diện người dùng (UI) cho web applications.
+React giúp code dễ bảo trì, tái sử dụng và hiệu năng cao nhờ cơ chế Virtual DOM.
+
+2. Đặc điểm chính của ReactJS
+------------------------------
+- Component-based (dựa trên thành phần):
+  → UI được chia thành nhiều component nhỏ (Button, Header, ProductCard, …). Mỗi component quản lý logic và giao diện riêng, giúp code tái sử dụng dễ dàng.
+- Virtual DOM:
+  → React không thao tác trực tiếp với DOM thật mà dùng Virtual DOM (DOM ảo) để so sánh và chỉ cập nhật những phần thay đổi → nhanh và tối ưu hơn.
+- One-way Data Binding (Dữ liệu 1 chiều):
+  → Dữ liệu luôn đi từ cha xuống con, giúp dễ kiểm soát luồng dữ liệu.
+
+- Declarative (Khai báo):
+  → Bạn chỉ cần "mô tả" UI muốn hiển thị, React sẽ lo việc cập nhật khi dữ liệu thay đổi.
+- JSX (JavaScript XML):
+
+  → Cho phép viết HTML trong JavaScript:
+  const element = <h1>Hello React</h1>;
+
+3. Ưu điểm
+------------------------------
+✅ Dễ học nếu đã biết JavaScript.
+✅ Xây dựng UI hiện đại, có thể tái sử dụng code. 
+✅ Cộng đồng lớn, nhiều thư viện hỗ trợ (React Router, Redux,…).
+✅ Dùng được cho Web (ReactJS) và Mobile (React Native).
+
+------------------------------
+II. HOOKS CƠ BẢN
+------------------------------
+
+1. useState
+------------------------------
+👉 Dùng để tạo và quản lý state trong functional component.
+
+Cú pháp:
+  const [state, setState] = useState(initialValue);
+
+  // state: giá trị hiện tại.
+  // setState: hàm để cập nhật state.
+  // initialValue: giá trị khởi tạo.
+
+📌 Ví dụ: Đếm số lần bấm nút
+```jsx
+import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0); // khởi tạo count = 0
+
+  return (
+    <div>
+      <p>Bạn đã bấm {count} lần</p>
+      <button onClick={() => setCount(count + 1)}>Bấm tôi</button>
+    </div>
+  );
+}
+```
+
+2. useEffect
+------------------------------
+👉 Dùng để thực hiện side effects (gọi API, thay đổi DOM, setInterval,…) sau khi component render.
+
+Cú pháp:
+```jsx
+const [a, setA] = useState(0); 
+useEffect(() => {
+  a 
+  return () => {
+    // cleanup (chạy khi unmount (ngắt kết nối) hoặc trước khi chạy effect mới) // Cleanup function  
+  };
+}, [a]); , [] => Chạy duy nhất 1 lần khi thành phần xuất hiện trong giao diện website (mount - kết nối) 
+           [a] => Chạy lại hàm phụ thuộc khi biến a thay đổi 
+```
+
+📌 Ví dụ: Gọi API khi component mount
+```jsx
+import { useState, useEffect } from "react";
+
+export default function UserList() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    // gọi API lấy danh sách user
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((res) => res.json())
+      .then((data) => setUsers(data));
+  }, []); // []: chỉ chạy 1 lần khi mount - kết nối 
+
+  return (
+    <div>
+      <h2>Danh sách User:</h2>
+      <ul>
+        {users.map((u) => (
+          <li key={u.id}>{u.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+------------------------------
+III. CÁC METHOD MẢNG THƯỜNG DÙNG
+------------------------------
+
+a) find()
+👉 Trả về phần tử đầu tiên thỏa điều kiện. Nếu không có, trả về undefined.
+📌 Ví dụ:
+```js
+const products = [
+  { id: 1, name: "Táo" },
+  { id: 2, name: "Cam" },
+  { id: 3, name: "Chuối" },
+];
+const product = products.find(p => p.id === 2);
+console.log(product); // { id: 2, name: "Cam" }
+```
+
+b) filter()
+👉 Trả về mảng mới chứa các phần tử thỏa điều kiện.
+📌 Ví dụ:
+```js
+const numbers = [1, 2, 3, 4, 5];
+const even = numbers.filter(n => n % 2 === 0);
+console.log(even); // [2, 4]
+```
+
+c) reduce()
+👉 Dùng để tính toán hoặc gộp dữ liệu thành một giá trị duy nhất.
+Cú pháp:
+```js
+array.reduce((acc, currentValue) => {
+  // logic xử lý
+  return newAcc;
+}, initialValue);
+```
+📌 Ví dụ: Tính tổng
+```js
+const numbers = [10, 20, 30];
+const sum = numbers.reduce((acc, num) => acc + num, 0);
+console.log(sum); // 60
+```
+📌 Ví dụ: Đếm số lần xuất hiện
+```js
+const fruits = ["cam", "táo", "táo", "chuối", "cam", "cam"];
+const count = fruits.reduce((acc, fruit) => {
+  acc[fruit] = (acc[fruit] || 0) + 1;
+  return acc;
+}, {});
+console.log(count); // { cam: 3, táo: 2, chuối: 1 }
+```
+
