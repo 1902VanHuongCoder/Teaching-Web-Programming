@@ -11,7 +11,7 @@ import {
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import { products } from "../lib/data";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 
 // Danh sách các sản phẩm trong giỏ hàng
 const cartItems = [
@@ -84,6 +84,7 @@ function ThanhToan() {
   const [coupon, setCoupon] = useState(""); // Lưu cái mã giảm giá mà người dùng nhập vào
   const [discount, setDiscount] = useState(0); // Lưu giá trị giảm giá tính theo phần
 
+  const router = useNavigate();
   // Điều khoản
   const [agreed, setAgreed] = useState(false);
 
@@ -144,6 +145,7 @@ function ThanhToan() {
       return;
     }
     alert("Đặt hàng thành công! Cảm ơn bạn đã mua sách tại BookStore.");
+    router("/xacnhandonhang");
   };
 
   return (
