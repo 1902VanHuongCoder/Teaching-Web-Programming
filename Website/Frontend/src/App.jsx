@@ -9,6 +9,8 @@ import ChiTietSanPham from './components/ChiTietSanPham';
 import ThanhToan from './components/ThanhToan';
 import XacNhanDonHang from './components/XacNhanDonHang';
 import GioHang from './components/GioHang';
+import LichSuMuaHang from './components/LichSuMuaHang';
+import HoSoNguoiDung from './components/HoSoNguoiDung';
 function App() {
 
   return (
@@ -25,6 +27,8 @@ function App() {
         <Route path="/thanhtoan" element={<ThanhToan />} />
         <Route path="/xacnhandonhang" element={<XacNhanDonHang />} />
         <Route path="/giohang" element={<GioHang />} />
+        <Route path="/lichsumuahang" element={<LichSuMuaHang />} />
+        <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
       </Routes>
     </BrowserRouter>
   );
