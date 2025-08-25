@@ -32,7 +32,7 @@ function HoSoNguoiDung() {
   return (
     <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
       <Navigation />
-      <div className="max-w-2xl mx-auto py-10 px-4">
+      <div className="max-w-4xl mx-auto py-10 px-4">
         <h1 className="text-3xl font-bold text-[#00809D] mb-8 text-center">
           Hồ Sơ Người Dùng
         </h1>

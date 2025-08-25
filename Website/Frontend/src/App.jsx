@@ -11,6 +11,7 @@ import XacNhanDonHang from './components/XacNhanDonHang';
 import GioHang from './components/GioHang';
 import LichSuMuaHang from './components/LichSuMuaHang';
 import HoSoNguoiDung from './components/HoSoNguoiDung';
+import ChiTietDonHang from './components/ChiTietDonHang';
 function App() {
 
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/giohang" element={<GioHang />} />
         <Route path="/lichsumuahang" element={<LichSuMuaHang />} />
         <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
+        <Route path="/don-hang/:id" element={<ChiTietDonHang />} />
       </Routes>
     </BrowserRouter>
   );
