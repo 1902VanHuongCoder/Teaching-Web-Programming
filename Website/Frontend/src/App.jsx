@@ -13,6 +13,8 @@ import LichSuMuaHang from './components/LichSuMuaHang';
 import HoSoNguoiDung from './components/HoSoNguoiDung';
 import ChiTietDonHang from './components/ChiTietDonHang';
 import DanhSachTinTuc from './components/DanhSachTinTuc';
+import ChiTietTinTuc from './components/ChiTietTinTuc';
+// import ChiTietTinTuc from './components/ChiTietTinTuc';
 function App() {
 
   return (
@@ -33,6 +35,7 @@ function App() {
         <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
         <Route path="/don-hang/:id" element={<ChiTietDonHang />} />
         <Route path="/tintuc" element={<DanhSachTinTuc />} />
+        <Route path='/tintuc/:id' element={<ChiTietTinTuc />} />
       </Routes>
     </BrowserRouter>
   );
