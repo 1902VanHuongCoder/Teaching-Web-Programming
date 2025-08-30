@@ -29,7 +29,7 @@ function XacNhanDonHang() {
               <FaHome /> Về trang chủ
             </Link>
             <Link
-              to="/don-hang"
+              to="/lichsumuahang"
               className="flex items-center justify-center gap-2 bg-white border border-[#00809D] text-[#00809D] py-3 rounded-full font-bold text-lg hover:bg-[#e0eafc] transition"
             >
               <FaShoppingCart /> Xem đơn hàng của tôi

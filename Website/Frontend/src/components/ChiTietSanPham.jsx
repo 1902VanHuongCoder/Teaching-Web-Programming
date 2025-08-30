@@ -3,6 +3,7 @@ import Navigation from "./Navigation";
 import { FaStar, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
 import Footer from "./Footer";
 import {products} from "../lib/data"; 
+import { Link } from "react-router-dom";
 const product = {
   hinhAnh: [
     "https://cungdocsach.vn/wp-content/uploads/2019/10/Harry-potter-v%C3%A0-h%C3%B2n-%C4%91%C3%A1-ph%C3%B9-th%E1%BB%A7y.gif",
@@ -166,9 +167,9 @@ function ChiTietSanPham() {
             >
               <FaPlus />
             </button>
-            <button className="flex items-center gap-2 bg-[#00809D] text-white px-6 py-2 rounded-full font-bold hover:bg-[#006b85] ml-6 transition-all">
+            <Link to="/giohang" className="flex items-center gap-2 bg-[#00809D] text-white px-6 py-2 rounded-full font-bold hover:bg-[#006b85] ml-6 transition-all">
               <FaShoppingCart /> Thêm vào giỏ hàng
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -236,12 +237,12 @@ function ChiTietSanPham() {
                 <p className="text-gray-500 line-through text-sm mt-2">
                   Giá gốc: {product.gia.toLocaleString()} VNĐ
                 </p>
-                <button className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-[#00809D] text-white py-1 px-2 w-full rounded-full font-bold">
+                <Link to="/giohang" className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-[#00809D] text-white py-1 px-2 w-full rounded-full font-bold">
                   <span>
                     <FaShoppingCart />
                   </span>
                   <span>Thêm Giỏ Hàng</span>
-                </button>
+                </Link>
               </div>
             </li>
           ))}

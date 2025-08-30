@@ -1,0 +1,91 @@
+1. Thêm trang giới thiệu và trang liên hệ 
+
+2. Tạo liên kết giữa các trang trong giao diện khách hàng
+
+3. Tạo giao diện trang dashboard để thể hiện các thông tin như: 
+    + Doanh thu dựa trên đơn hàng hoàn thành 
+    + Số lượng tài khoản người dùng 
+    + Sản phẩm sắp hết hàng trong kho 
+
+4. Tạo trang quản lý sách (thêm, sửa, xóa)
+
+5. Quản lý đơn hàng (xem, cập nhật trạng thái)
+
+6. Quản lý người dùng (xem, cập nhật trạng thái tài khoản)
+
+7. Quản lý bình luận (xem)
+
+8. Quản lý khuyến mãi (thêm, sửa, xóa) 
+
+9. Quản lý giao dịch kho (xem, xuất file excel) 
+
+10. Quản lý tin tức (thêm, sửa, xóa)
+
+11. Hiểu cấu trúc cốt lõi giữa backend và frontend và mô hình MVC
+
+12. Khởi tạo ban đầu cho Backend: tạo main entry cho backend và kết nối cơ sở dữ liệu 
+
+13. Tạo các API thêm, sửa, xóa sản phẩm  
+    + Tạo các tuyến (Route) 
+    + Tạo SanPham model 
+    + Tạo SanPhamController 
+    + Test API
+
+14. Tạo API xem, thêm, sửa đơn hàng 
+    + Tạo các tuyến (Route)
+    + Tạo DonHang model 
+    + Tạo DonHangController 
+    + Test APIs 
+
+15. Tạo API thêm, sửa tài khoản người dùng
+    + Tạo các tuyến (Route)
+    + Tạo NguoiDung model 
+    + Tạo NguoiDungController 
+    + Test APIs 
+
+16. Tạo API xem, thêm, xóa bình luận sản phẩm 
+    + Tạo các tuyến (Route)
+    + Tạo BinhLuan model 
+    + Tạo BinhLuanController 
+    + Test APIs 
+
+17. Tạo API xem, thêm, sửa, xóa khuyến mãi 
+    + Tạo các tuyến (Route)
+    + Tạo KhuyenMai model 
+    + Tạo KhuyenMaiController 
+    + Test APIs 
+
+18. Tạo API xem, thêm giao dịch kho 
+    + Tạo các tuyến (Route) 
+    + Tạo GiaoDichKho model 
+    + Tạo GiaoDichKhoController 
+    + Test APIs 
+
+19. Tạo API xem, thêm, sửa, xóa tin tức
+    + Tạo các tuyến (Route) 
+    + Tạo TinTuc model 
+    + Tạo TinTucController 
+    + Test APIs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,6 +4,7 @@ import { products, topProducts } from "../../lib/data";
 import { useState } from "react";
 import Footer from "../Footer";
 import { FaShoppingCart } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const CATEGORIES = [
   // Danh mục
@@ -27,7 +28,7 @@ function Homepage() {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả"); // Danh mục được chọn
   const [selectedPrice, setSelectedPrice] = useState("all"); // Vùng giá được chọn
 
-  const [chuDeTrangWeb, setChuDeTrangWeb] = useState("light"); 
+  const [chuDeTrangWeb, setChuDeTrangWeb] = useState("light");
   // Tạo 2 biến trạng thái khác để lưu trữ danh mục và vùng giá được chọn cho sản phẩm bán chạy
 
   // Lọc sản phẩm theo danh mục và giá
@@ -53,7 +54,10 @@ function Homepage() {
   return (
     <div className="bg-[#00809D] min-h-screen h-fit">
       {/* Thanh điều hướng - Navigation */}
-      <Navigation chuDeTrangWeb={chuDeTrangWeb} setChuDeTrangWeb={setChuDeTrangWeb} />
+      <Navigation
+        chuDeTrangWeb={chuDeTrangWeb}
+        setChuDeTrangWeb={setChuDeTrangWeb}
+      />
 
       {/* Banner - Banner */}
       <Banner />
@@ -111,13 +115,16 @@ function Homepage() {
         <ul className="grid grid-cols-5 gap-4 px-4 gap-y-10">
           {filteredProducts.map((product) => (
             <li key={product.maSP} className="w-full h-fit rounded-md">
-              <div className="w-full h-[350px] rounded-xl overflow-hidden">
-                <img
-                  src={product.hinhAnh}
-                  alt={product.tenSP}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              <Link to="/chitietsanpham">
+                <div className="w-full h-[350px] rounded-xl overflow-hidden">
+                  <img
+                    src={product.hinhAnh}
+                    alt={product.tenSP}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </Link>
+
               <div className="p-2 bg-transparent">
                 <h4 className="font-semibold text-white uppercase py-2">
                   {product.tenSP}
@@ -128,12 +135,15 @@ function Homepage() {
                 <p className="text-gray-300 line-through text-sm mt-2">
                   Giá gốc: {product.gia.toLocaleString()} VNĐ
                 </p>
-                <button className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-white text-[#00809D] py-1 px-2 w-full rounded-full font-bold">
+                <Link
+                  to="/giohang"
+                  className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-white text-[#00809D] py-1 px-2 w-full rounded-full font-bold"
+                >
                   <span>
                     <FaShoppingCart />
                   </span>
                   <span>Thêm Giỏ Hàng</span>
-                </button>
+                </Link>
               </div>
             </li>
           ))}

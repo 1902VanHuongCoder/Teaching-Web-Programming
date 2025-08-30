@@ -14,6 +14,9 @@ import HoSoNguoiDung from './components/HoSoNguoiDung';
 import ChiTietDonHang from './components/ChiTietDonHang';
 import DanhSachTinTuc from './components/DanhSachTinTuc';
 import ChiTietTinTuc from './components/ChiTietTinTuc';
+import GioiThieuCuaHang from './components/GioiThieuCuaHang';
+import LienHeCuaHang from './components/LienHeCuaHang';
+import KetQuaTimKiemSach from './components/KetQuaTimKiem';
 // import ChiTietTinTuc from './components/ChiTietTinTuc';
 function App() {
 
@@ -35,7 +38,10 @@ function App() {
         <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
         <Route path="/don-hang/:id" element={<ChiTietDonHang />} />
         <Route path="/tintuc" element={<DanhSachTinTuc />} />
-        <Route path='/tintuc/:id' element={<ChiTietTinTuc />} />
+        <Route path="/tintuc/:id" element={<ChiTietTinTuc />} />
+        <Route path="/gioithieu" element={<GioiThieuCuaHang />} />
+        <Route path="/lienhe" element={<LienHeCuaHang />} />
+        <Route path="/ketquatimkiem" element={<KetQuaTimKiemSach />} />
       </Routes>
     </BrowserRouter>
   );
