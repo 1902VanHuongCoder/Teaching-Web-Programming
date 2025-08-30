@@ -6,19 +6,21 @@ NỘI DUNG TRANG CHI TIẾT SẢN PHẨM
 I. Thông tin cơ bản
 ------------------
 - Hình ảnh sản phẩm (1 hoặc nhiều ảnh)
-- Đánh giá (sao)
 - Tên sách
 - Tác giả
 - Nhà xuất bản
 - Ngày xuất bản
-- Ngôn ngữ của sách
-- Loại sách
+- Ngôn ngữ của sách (Anh va Tieng Viet)
+- Loại sách (chọn từ danh sách có sẵn)
 - Số trang
-- Định dạng của sách
-- Số lượng còn lại
+- Định dạng của sách 
+- Số lượng 
 - Giá gốc
 - Giá giảm
 - ISBN13 (Mã số riêng của mỗi quyển sách)
+
+
+- Đánh giá (sao)
 
 II. Chức năng mua hàng
 ----------------------
