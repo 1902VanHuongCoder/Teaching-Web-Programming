@@ -1,0 +1,128 @@
+
+==============================
+**1. Khái niệm MVC là gì?**
+============================== 
+
+MVC là mô hình kiến trúc phần mềm chia ứng dụng thành 3 phần riêng biệt:
+
+**Model (M):** Schema 
+- Đại diện cho dữ liệu và logic nghiệp vụ. 
+- Chịu trách nhiệm lưu trữ, truy xuất và xử lý dữ liệu (thường tương tác với database).
+- Ví dụ: Định nghĩa schema User, thao tác CRUD với MongoDB/MySQL.
+
+**View (V):** 
+- Phần giao diện hiển thị dữ liệu cho người dùng. 
+- Trong backend Express, View có thể là template engine (EJS, Pug, Handlebars) hoặc trả JSON để frontend render.
+
+Single page Application * IMPORTANT <> Multipage application 
+
+**Controller (C):**
+- Nhận request từ client, gọi Model để xử lý dữ liệu, sau đó trả về View.
+- Giúp tách biệt logic điều hướng request và dữ liệu.
+
+👉 **Ưu điểm:** Dễ bảo trì, dễ mở rộng, code rõ ràng và phân chia trách nhiệm.
+
+------------------------------
+**2. Ví dụ minh họa với ExpressJS (REST API)**
+------------------------------
+Giả sử ta làm app quản lý User.
+
+**Cấu trúc thư mục MVC:**
+```
+project/
+│── models/
+│   └── userModel.js
+│── controllers/
+│   └── userController.js
+│── routes/
+│   └── userRoutes.js
+│── app.js
+```
+
+📌 **1. Model – models/userModel.js**
+Ví dụ với MongoDB + Mongoose:
+
+```js
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true },
+  age: Number,
+});
+
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
+```
+
+📌 **2. Controller – controllers/userController.js**
+```js
+const User = require("../models/userModel");
+
+// Lấy tất cả user
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users); // View ở đây là JSON
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Tạo user mới
+exports.createUser = async (req, res) => {
+  try {
+    const newUser = new User(req.body);
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+```
+
+📌 **3. Route – routes/userRoutes.js**
+```js
+const express = require("express");
+const router = express.Router();
+const userController = require("../controllers/userController");
+
+// Định nghĩa endpoint
+router.get("/", userController.getUsers); example.com/
+router.post("/", userController.createUser); 
+
+module.exports = router;
+```
+
+📌 **4. App chính – app.js** 
+```js
+const express = require("express");
+const mongoose = require("mongoose");
+const userRoutes = require("./routes/userRoutes");
+
+const app = express();
+app.use(express.json());
+
+// Kết nối DB
+mongoose.connect("mongodb://localhost:27017/mvc_demo", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Sử dụng routes
+app.use("/api/users", userRoutes);
+
+app.listen(3000, () => console.log("Server running on port 3000"));
+```
+
+------------------------------
+**3. Hoạt động của MVC trong ví dụ trên:**
+------------------------------
+
+- Client gọi API: `GET /api/users`
+  → Router điều hướng đến Controller → Controller gọi Model → Model lấy dữ liệu từ DB → trả JSON về client (View).
+
+- Client gọi API: `POST /api/users`
+  → Router → Controller → tạo user mới trong Model → lưu DB → trả về JSON kết quả.
+
