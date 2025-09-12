@@ -1,0 +1,84 @@
+
+==============================
+**1. Khái niệm Client - Server**
+==============================
+
+**Client (Máy khách):**
+- Thường là trình duyệt web (Chrome, Firefox, Edge, Safari…) hoặc ứng dụng di động.
+- Gửi yêu cầu (request) đến Server để lấy dữ liệu hoặc thực hiện chức năng nào đó.
+
+**Server (Máy chủ):**
+- Nơi lưu trữ và xử lý dữ liệu.
+- Khi nhận yêu cầu từ Client, Server xử lý logic, truy vấn cơ sở dữ liệu nếu cần, sau đó gửi phản hồi (response) về cho Client.
+
+👉 **Hiểu đơn giản:**
+- **Client** = người dùng + giao diện để gửi yêu cầu.
+- **Server** = đầu bếp trong nhà hàng, nhận order từ khách và mang món ăn ra.
+
+------------------------------
+**2. Quy trình hoạt động**
+------------------------------
+1. Người dùng mở trình duyệt (Client) và nhập URL: `https://example.com`.
+2. Client gửi yêu cầu HTTP đến Server.
+3. Server nhận request, xử lý logic (có thể lấy dữ liệu từ database).
+4. Server gửi response về cho Client (có thể là HTML, JSON, ảnh…). // Single page application, Multi page application 
+5. Client nhận response và hiển thị cho người dùng.
+
+
+------------------------------
+**3. Ví dụ cụ thể**
+------------------------------
+Giả sử bạn có một website bán sách:
+
+**Client (Front-end):**
+- Được viết bằng ReactJS hoặc VueJS.
+- Người dùng truy cập trang và bấm **"Xem chi tiết sách"**.
+- Client gửi một request:
+
+```http
+GET /books/123
+Host: mybookstore.com/books/123 
+```
+
+**Server (Back-end):**
+- Được viết bằng Node.js + Express.
+- Nhận request `/books/123`, tìm trong cơ sở dữ liệu (MySQL/MongoDB).
+- Trả về response dạng JSON: 
+
+```json
+{
+  "id": 123,
+  "title": "Lập Trình JavaScript Cơ Bản",
+  "author": "Nguyễn Văn A",
+  "price": 100000
+}
+```
+
+Client nhận JSON và hiển thị thông tin sách trên giao diện cho người dùng.
+
+------------------------------
+**4. Minh họa đơn giản**
+------------------------------
+
+```
+[Client - Browser] <---- Request ----> [Server - ExpressJS + Database]
+```
+
+Ví dụ code Node.js (Express):
+
+```js
+const express = require("express");
+const app = express();
+
+app.get("/hello", (req, res) => {
+  res.send("Xin chào từ Server!");
+});
+
+app.listen(3000, () => console.log("Server chạy tại http://localhost:3000"));
+```
+
+*Client (dùng trình duyệt) truy cập* `http://localhost:3000/hello` *sẽ nhận được:*
+
+```
+Xin chào từ Server!
+```
