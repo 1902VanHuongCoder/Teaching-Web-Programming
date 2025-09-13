@@ -23,6 +23,8 @@ import QuanLiChung from './components/admin/QuanLiChung';
 import DanhMucSach from './components/admin/DanhMucSach';
 import QuanLiNguoiDung from './components/admin/QuanLiNguoiDung';
 import QuanLiDonHang from './components/admin/QuanLiDonHang';
+import QuanLiBinhLuan from './components/admin/QuanLiBinhLuan';
+import QuanLiKhuyenMai from './components/admin/QuanLiKhuyenMai';
 function App() {
 
   return (
@@ -55,8 +57,8 @@ function App() {
           <Route path="danhmucsach" element={<DanhMucSach />} />
           <Route path="donhang" element={<QuanLiDonHang />} />
           <Route path="nguoidung" element={<QuanLiNguoiDung />} />
-          <Route path="binhluan" element={<div>Bình luận</div>} />
-          <Route path="khuyenmai" element={<div>Khuyến mãi</div>} />
+          <Route path="binhluan" element={<QuanLiBinhLuan />} />
+          <Route path="khuyenmai" element={<QuanLiKhuyenMai />} />
           <Route path="giaodichkho" element={<div>Giao dịch kho</div>} />
           <Route path="tintuc" element={<div>Quản lý tin tức</div>} />
         </Route>
