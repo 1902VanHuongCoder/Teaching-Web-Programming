@@ -11,7 +11,7 @@ const sidebarLinks = [
   { label: "Khuyến mãi", to: "/admin/khuyenmai" },
   { label: "Giao dịch kho", to: "/admin/giaodichkho" },
   { label: "Quản lý tin tức", to: "/admin/tintuc" },
-];
+]; 
 
 function AdminLayout() {
   const location = useLocation(); // Vị trí website đang hiển thị 

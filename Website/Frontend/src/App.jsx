@@ -21,6 +21,7 @@ import AdminLayout from './components/admin/AdminLayout';
 import QuanLiSach from './components/admin/QuanLiSach';
 import QuanLiChung from './components/admin/QuanLiChung';
 import DanhMucSach from './components/admin/DanhMucSach';
+// import QuanLiDonHang from './components/admin/QuanLiDonHang';
 // import ChiTietTinTuc from './components/ChiTietTinTuc';
 function App() {
 
@@ -52,7 +53,7 @@ function App() {
           <Route index element={<QuanLiChung />} />
           <Route path="sach" element={<QuanLiSach />} />
           <Route path="danhmucsach" element={<DanhMucSach />} />
-          <Route path="donhang" element={<div>Quản lý đơn hàng</div>} />
+          <Route path="donhang" element={<QuanLiDonHang />} />
           <Route path="nguoidung" element={<div>Người dùng</div>} />
           <Route path="binhluan" element={<div>Bình luận</div>} />
           <Route path="khuyenmai" element={<div>Khuyến mãi</div>} />
