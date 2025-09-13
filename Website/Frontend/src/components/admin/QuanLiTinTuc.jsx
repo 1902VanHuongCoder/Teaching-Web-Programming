@@ -1,4 +1,15 @@
 import React, { useState } from "react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+
+import Bold from "@tiptap/extension-bold";
+import Italic from "@tiptap/extension-italic";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
+import ListItem from "@tiptap/extension-list-item";
 
 // Demo/mock data for news
 const initialNews = [
@@ -7,7 +18,7 @@ const initialNews = [
     title: "Ra mắt sách mới tháng 9!",
     image: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=500",
     date: "2025-09-10",
-    summary:
+    content:
       "Chúng tôi vừa cập nhật nhiều đầu sách mới hấp dẫn cho tháng 9. Đừng bỏ lỡ!",
   },
   {
@@ -15,7 +26,7 @@ const initialNews = [
     title: "Khuyến mãi mùa tựu trường",
     image: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=500",
     date: "2025-09-01",
-    summary:
+    content:
       "Nhiều ưu đãi hấp dẫn cho học sinh, sinh viên khi mua sách tại cửa hàng.",
   },
 ];
@@ -26,7 +37,15 @@ function QuanLiTinTuc() {
     title: "",
     image: "",
     date: "",
-    summary: "",
+    content: "",
+  });
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: "",
+    onUpdate: ({ editor }) => {
+      setForm({ ...form, content: editor.getHTML() });
+    },
   });
 
   // Handle form input
@@ -37,9 +56,9 @@ function QuanLiTinTuc() {
 
   // Add news
   const handleSubmit = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setNews([...news, { ...form, id: Date.now() }]);
-    setForm({ title: "", image: "", date: "", summary: "" });
+    setForm({ title: "", image: "", date: "", content: "" });
   };
 
   // Delete news
@@ -53,29 +72,30 @@ function QuanLiTinTuc() {
         Quản lý tin tức
       </h1>
       {/* News Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow p-6 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-        <div>
-          <label className="block font-semibold mb-1">Tiêu đề</label>
-          <input
-            type="text"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
-          <label className="block font-semibold mb-1">Hình ảnh (URL)</label>
-          <input
-            type="text"
-            name="image"
-            value={form.image}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
+      <form onSubmit={handleSubmit} className="">
+        <div className="flex gap-x-2">
+          <div className="w-full">
+            <label className="block font-semibold mb-1">Tiêu đề</label>
+            <input
+              type="text"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              className="w-full border rounded p-2 mb-3"
+              required
+            />
+          </div>
+          <div className="w-full">
+            <label className="block font-semibold mb-1">Hình ảnh (URL)</label>
+            <input
+              type="text"
+              name="image"
+              value={form.image}
+              onChange={handleChange}
+              className="w-full border rounded p-2 mb-3"
+              required
+            />
+          </div>
         </div>
         <div>
           <label className="block font-semibold mb-1">Ngày đăng</label>
@@ -87,22 +107,86 @@ function QuanLiTinTuc() {
             className="w-full border rounded p-2 mb-3"
             required
           />
-          <label className="block font-semibold mb-1">Tóm tắt</label>
-          <textarea
-            name="summary"
-            value={form.summary}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            rows={3}
-            required
-          />
-          <button
-            type="submit"
-            className="bg-[#00809D] text-white px-6 py-2 rounded font-semibold mt-2"
-          >
-            Thêm mới
-          </button>
         </div>
+        <div>
+          <label className="block font-semibold mb-1">Nội dung</label>
+          <div>
+            <div className="mb-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                className={
+                  editor.isActive("bold") ? "font-bold text-blue-600" : ""
+                }
+              >
+                B
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                className={
+                  editor.isActive("italic") ? "italic text-blue-600" : ""
+                }
+              >
+                I
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                className={
+                  editor.isActive("underline") ? "underline text-blue-600" : ""
+                }
+              >
+                U
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = window.prompt("Nhập URL:");
+                  if (url) editor.chain().focus().setLink({ href: url }).run();
+                }}
+              >
+                Link
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = window.prompt("Nhập URL hình ảnh:");
+                  if (url) editor.chain().focus().setImage({ src: url }).run();
+                }}
+              >
+                Ảnh
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                className={editor.isActive("bulletList") ? "text-blue-600" : ""}
+              >
+                • Danh sách
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                className={
+                  editor.isActive("orderedList") ? "text-blue-600" : ""
+                }
+              >
+                1. Danh sách
+              </button>
+            </div>
+
+            <EditorContent
+              editor={editor}
+              className="border rounded p-2 h-40 mb-3 overflow-y-auto"
+            />
+          </div>
+        </div>
+        <button
+          type="submit"
+          className="bg-[#00809D] text-white px-6 py-2 rounded font-semibold mt-2"
+        >
+          Thêm mới
+        </button>
       </form>
 
       {/* News List */}
@@ -135,7 +219,7 @@ function QuanLiTinTuc() {
                   </td>
                   <td className="py-2 px-3">{n.title}</td>
                   <td className="py-2 px-3">{n.date}</td>
-                  <td className="py-2 px-3">{n.summary}</td>
+                  <td className="py-2 px-3">{n.content}</td>
                   <td className="py-2 px-3">
                     <button
                       onClick={() => handleDelete(n.id)}
