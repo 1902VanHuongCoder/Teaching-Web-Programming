@@ -177,7 +177,7 @@ function QuanLiTinTuc() {
 
             <EditorContent
               editor={editor}
-              className="border rounded p-2 h-40 mb-3 overflow-y-auto"
+              className="tiptap-content min-h-[300px] p-3 focus:ouline-none rounded-md border border-gray-300"
             />
           </div>
         </div>
