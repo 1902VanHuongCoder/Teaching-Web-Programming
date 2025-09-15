@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-
-const initialBooks = [ // Dữ liệu sách mẫu 
+const initialBooks = [
+  // Dữ liệu sách mẫu
   {
     id: 1,
     images: [],
@@ -32,7 +32,6 @@ const LOAI_SACH = [
 const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"]; // Định dạng sách
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"]; // Ngôn ngữ sách
 
-
 function QuanLiSach() {
   const [books, setBooks] = useState(initialBooks);
   const [form, setForm] = useState({
@@ -51,7 +50,7 @@ function QuanLiSach() {
     giaGiam: 0,
     isbn13: "",
   });
-  const [editId, setEditId] = useState(null); 
+  const [editId, setEditId] = useState(null);
 
   // Handle form input
   const handleChange = (e) => {
@@ -112,15 +111,45 @@ function QuanLiSach() {
         className="bg-white rounded-lg shadow p-6 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         <div>
-          <label className="block font-semibold mb-1">Hình ảnh sản phẩm</label>
-          <input
-            type="file"
-            name="images" // Tên trường hình ảnh
-            multiple
-            accept="image/*"
-            onChange={handleChange}
-            className="mb-3"
-          />
+          <label className="block font-semibold mb-1">Hình ảnh</label>
+          <div
+            className="mb-3 border-2 border-dashed border-gray-300 rounded p-4 text-center cursor-pointer hover:border-[#00809D] bg-gray-50"
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            
+            onDrop={(e) => {
+              e.preventDefault(); // Ngăn trình duyệt thực hiện hành động mặc định (ví dụ: mở ảnh trong tab mới khi thả file vào trình duyệt)
+              e.stopPropagation(); // Ngăn sự kiện nổi bọt lên các phần tử cha
+
+              // Lấy tất cả file được thả vào, lọc chỉ lấy file có kiểu là ảnh (image/*)
+              const files = Array.from(e.dataTransfer.files).filter((f) =>
+                f.type.startsWith("image/")
+              );
+
+              // Nếu có ít nhất 1 file ảnh được thả vào
+              if (files.length > 0) {
+                setForm({ ...form, images: files }); // Cập nhật state form, trường images sẽ chứa các file ảnh vừa thả vào
+              }
+            }}
+            onClick={() => document.getElementById("fileInputImages").click()}
+          >
+            <input
+              id="fileInputImages"
+              type="file"
+              name="images"
+              multiple
+              accept="image/*"
+              onChange={handleChange}
+              className="hidden"
+            />
+            <span className="text-gray-500">
+              Kéo và thả ảnh vào đây hoặc{" "}
+              <span className="text-[#00809D] underline">chọn ảnh</span>
+            </span>
+          </div>
+
           <div className="flex gap-2 flex-wrap">
             {form.images &&
               Array.from(form.images).map((img, idx) => (
@@ -331,13 +360,13 @@ function QuanLiSach() {
                   <td className="py-2 px-3">{book.isbn13}</td>
                   <td className="py-2 px-3">
                     <button
-                      onClick={() => handleEdit(book)} // Hàm sửa sản phẩm 
+                      onClick={() => handleEdit(book)} // Hàm sửa sản phẩm
                       className="text-blue-600 hover:underline mr-2"
                     >
                       Sửa
                     </button>
                     <button
-                      onClick={() => handleDelete(book.id)} // Hàm xóa sản phẩm 
+                      onClick={() => handleDelete(book.id)} // Hàm xóa sản phẩm
                       className="text-red-600 hover:underline"
                     >
                       Xóa
@@ -354,4 +383,3 @@ function QuanLiSach() {
 }
 
 export default QuanLiSach;
-

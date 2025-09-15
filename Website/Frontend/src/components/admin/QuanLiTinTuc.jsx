@@ -85,14 +85,82 @@ function QuanLiTinTuc() {
               required
             />
           </div>
+
+
+
+
+
+
+
           <div className="w-full">
-            <label className="block font-semibold mb-1">Hình ảnh (URL)</label>
+            <label className="block font-semibold mb-1">
+              Hình ảnh (URL hoặc kéo-thả)
+            </label>
+            {/* Khu vực kéo-thả ảnh */}
+            <div
+              className="mb-3 border-2 border-dashed border-gray-300 rounded p-4 text-center cursor-pointer hover:border-[#00809D] bg-gray-50"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const files = Array.from(e.dataTransfer.files).filter((f) =>
+                  f.type.startsWith("image/")
+                );
+                if (files.length > 0) {
+                  // Đọc file ảnh đầu tiên và chuyển thành base64 để xem trước 
+                  const reader = new FileReader();
+                  reader.onload = (ev) => {  // event 
+                    setForm({ ...form, image: ev.target.result });
+                  };
+                  reader.readAsDataURL(files[0]);
+                }
+              }}
+              onClick={() =>
+                document.getElementById("fileInputNewsImage").click()
+              }
+            >
+              <input
+                id="fileInputNewsImage"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                      setForm({ ...form, image: ev.target.result });
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="hidden"
+              />
+              <span className="text-gray-500">
+                Kéo và thả ảnh vào đây hoặc{" "}
+                <span className="text-[#00809D] underline">chọn ảnh</span>
+              </span>
+            </div>
+            {/* Hiển thị ảnh đã chọn */}
+            {form.image && (
+              <div className="mb-3">
+                <img
+                  src={form.image}
+                  alt="preview"
+                  className="w-24 h-24 object-cover rounded border mx-auto"
+                />
+              </div>
+            )}
+            {/* Hoặc nhập URL ảnh */}
             <input
               type="text"
               name="image"
               value={form.image}
               onChange={handleChange}
               className="w-full border rounded p-2 mb-3"
+              placeholder="Dán URL ảnh hoặc kéo-thả/chọn ảnh phía trên"
               required
             />
           </div>
