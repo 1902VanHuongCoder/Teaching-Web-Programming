@@ -6,7 +6,7 @@ const Sach = sequelize.define('Sach', {
     sachID: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true 
     },
     tenSach: {
         type: DataTypes.STRING,

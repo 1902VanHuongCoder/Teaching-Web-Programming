@@ -30,7 +30,7 @@ app.get("/api/testnodemon", (req, res) => {
     res.send("Nodemon is working!");
 })
 
-app.use("/api/sach", sachRoutes); // Sử dụng các routes cho sách
+app.use("/api/sach", sachRoutes); // Sử dụng các routes cho
 
 // Lắng nghe các kết nối đến server 
 const PORT = process.env.PORT || 3001;
