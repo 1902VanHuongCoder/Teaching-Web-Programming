@@ -25,6 +25,10 @@ app.get('/api/status', (req, res) => {
     res.json({ status: 'API is running' });
 });
 
+app.get("/api/testnodemon", (req, res) => {
+    res.send("Nodemon is working!");
+})
+
 // Lắng nghe các kết nối đến server 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
