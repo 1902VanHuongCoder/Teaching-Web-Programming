@@ -15,7 +15,8 @@ const DonHang = sequelize.define('DonHang', {
     tenKhachHang: {
         type: DataTypes.STRING,
         allowNull: false
-    }, soDienThoaiKH: {
+    },
+     soDienThoaiKH: {
         type: DataTypes.STRING,
         allowNull: false    
     }, 
