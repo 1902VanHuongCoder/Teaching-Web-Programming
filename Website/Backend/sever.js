@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import sequelize from './config/mysql-config.js';
 import sachRoutes from './routes/sachRoutes.js';
+import danhDanhMucSachRoutes from './routes/danhMucSachRoutes.js';
 
 // Đọc biến môi trường từ file .env 
 dotenv.config(); 
@@ -30,7 +31,8 @@ app.get("/api/testnodemon", (req, res) => {
     res.send("Nodemon is working!");
 })
 
-app.use("/api/sach", sachRoutes); // Sử dụng các routes cho
+app.use("/api/sach", sachRoutes); // Sử dụng các routes 
+app.use("/api/danh-muc-sach", danhDanhMucSachRoutes); 
 
 // Lắng nghe các kết nối đến server 
 const PORT = process.env.PORT || 3001;
