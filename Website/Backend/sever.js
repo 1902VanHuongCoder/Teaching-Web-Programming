@@ -5,6 +5,7 @@ import sequelize from './config/mysql-config.js';
 import sachRoutes from './routes/sachRoutes.js';
 import danhDanhMucSachRoutes from './routes/danhMucSachRoutes.js';
 import donHangRoutes from './routes/donHangRoutes.js';
+import nguoiDungRoutes from './routes/nguoiDungRoutes.js';
 
 // Đọc biến môi trường từ file .env 
 dotenv.config(); 
@@ -22,6 +23,7 @@ sequelize.authenticate().then(() => console.log('Kết nối đến MySQL thành
 app.use("/api/sach", sachRoutes); // Sử dụng các routes 
 app.use("/api/danh-muc-sach", danhDanhMucSachRoutes); 
 app.use('/api/don-hang', donHangRoutes);
+app.use("/api/nguoi-dung", nguoiDungRoutes); 
 
 // Lắng nghe các kết nối đến server 
 const PORT = process.env.PORT || 3001;
