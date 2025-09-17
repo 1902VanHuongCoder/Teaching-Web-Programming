@@ -6,6 +6,7 @@ import sachRoutes from './routes/sachRoutes.js';
 import danhDanhMucSachRoutes from './routes/danhMucSachRoutes.js';
 import donHangRoutes from './routes/donHangRoutes.js';
 import nguoiDungRoutes from './routes/nguoiDungRoutes.js';
+import binhLuanRoutes from './routes/binhLuanRoutes.js';
 
 // Đọc biến môi trường từ file .env 
 dotenv.config(); 
@@ -24,7 +25,7 @@ app.use("/api/sach", sachRoutes); // Sử dụng các routes
 app.use("/api/danh-muc-sach", danhDanhMucSachRoutes); 
 app.use('/api/don-hang', donHangRoutes);
 app.use("/api/nguoi-dung", nguoiDungRoutes); 
-
+app.use("/api/binh-luan", binhLuanRoutes); 
 // Lắng nghe các kết nối đến server 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
