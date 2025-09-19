@@ -13,7 +13,7 @@ export const nhanTatCaCacQuyenSach = async (req, res) => {
 // Hàm để thêm một quyển sách vào cửa hàng 
 export const taoSachMoi = async (req, res) => {
     try {
-        const  { tenSach, tacGia, nhaXuatBan, ngayXuatBan, ngonNgu, loaiSach, soTrang, dinhDang, soLuongConLai, ISBN13, gia, giaGiam, images  } = req.body;  
+        const  { tenSach, tacGia, nhaXuatBan, ngayXuatBan, ngonNgu, loaiSach, soTrang, dinhDang, soLuongConLai, ISBN13, giaNhap, giaBan, giaGiam, images  } = req.body;  
     
         const sachMoi = await Sach.create({
             tenSach,
@@ -26,7 +26,8 @@ export const taoSachMoi = async (req, res) => {
             dinhDang,
             soLuongConLai,
             ISBN13,
-            gia,
+            giaNhap,
+            giaBan,
             giaGiam,
             images
         });
@@ -41,7 +42,7 @@ export const taoSachMoi = async (req, res) => {
 export const capNhatSach = async (req, res) => {
     try {
         const { id } = req.params; 
-        const { tenSach, tacGia, nhaXuatBan, ngayXuatBan, ngonNgu, loaiSach, soTrang, dinhDang, soLuongConLai, ISBN13, gia, giaGiam, images } = req.body;
+        const { tenSach, tacGia, nhaXuatBan, ngayXuatBan, ngonNgu, loaiSach, soTrang, dinhDang, soLuongConLai, ISBN13, giaBan, giaNhap, giaGiam, images } = req.body;
 
         const sach = await Sach.findByPk(id); 
         if (!sach) {
@@ -59,7 +60,8 @@ export const capNhatSach = async (req, res) => {
         sach.dinhDang = dinhDang;
         sach.soLuongConLai = soLuongConLai;
         sach.ISBN13 = ISBN13;
-        sach.gia = gia;
+        sach.giaBan = giaBan;
+        sach.giaNhap = giaNhap;
         sach.giaGiam = giaGiam;
         sach.images = images;
 
