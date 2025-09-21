@@ -1,0 +1,11 @@
+/uploads/image1.png
+
+<img src="
+
+url, public_id
+
+cloudinary - 
+
+
+npm install cloudinary 
+

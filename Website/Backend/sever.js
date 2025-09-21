@@ -10,6 +10,7 @@ import binhLuanRoutes from './routes/binhLuanRoutes.js';
 import khuyenMaiRoutes from './routes/khuyenMaiRoutes.js';
 import giaoDichKhoRoutes from './routes/giaoDichKhoRoutes.js';
 import tinTucRoutes from './routes/tinTucRoutes.js';
+import hinhAnhRoutes from './routes/hinhAnhRoutes.js';
 
 // Đọc biến môi trường từ file .env 
 dotenv.config(); 
@@ -34,6 +35,7 @@ app.use("/api/binh-luan", binhLuanRoutes);
 app.use("/api/khuyen-mai", khuyenMaiRoutes); 
 app.use("/api/giao-dich-kho", giaoDichKhoRoutes); 
 app.use("/api/tin-tuc", tinTucRoutes); 
+app.use("/api/hinh-anh", hinhAnhRoutes); 
 
 // Lắng nghe các kết nối đến server 
 const PORT = process.env.PORT || 3001;
