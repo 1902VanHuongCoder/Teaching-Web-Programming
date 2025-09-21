@@ -29,7 +29,7 @@ export const taoSachMoi = async (req, res) => {
             giaNhap,
             giaBan,
             giaGiam,
-            images
+            images: JSON.stringify(images) // Lưu mảng dưới dạng chuỗi JSON
         });
         res.status(201).json(sachMoi);
     }catch (error) {

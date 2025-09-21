@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { themSach } from "../../lib/sach-apis";
+import { uploadHinhAnh } from "../../lib/hinh-anh-apis";
 
 const initialBooks = [
   // Dữ liệu sách mẫu
@@ -13,10 +15,11 @@ const initialBooks = [
     loaiSach: "Truyện tranh",
     soTrang: 200,
     dinhDang: "Bìa mềm",
-    soLuong: 50,
-    giaGoc: 120000,
+    soLuongConLai: 50,
+    giaNhap: 80000,
+    giaBan: 100000,
     giaGiam: 90000,
-    isbn13: "9786042091234",
+    ISBN13: "9786042091234",
   },
 ];
 
@@ -36,7 +39,7 @@ function QuanLiSach() {
   const [books, setBooks] = useState(initialBooks);
   const [form, setForm] = useState({
     id: null,
-    images: [],
+    images: [], // Mảng chứa các URL hình ảnh
     tenSach: "",
     tacGia: "",
     nhaXuatBan: "",
@@ -45,10 +48,11 @@ function QuanLiSach() {
     loaiSach: "Truyện tranh",
     soTrang: 0,
     dinhDang: "Bìa mềm",
-    soLuong: 0,
-    giaGoc: 0,
+    soLuongConLai: 0,
+    giaNhap: 0,
+    giaBan: 0, 
     giaGiam: 0,
-    isbn13: "",
+    ISBN13: "",
   });
   const [editId, setEditId] = useState(null);
 
@@ -63,8 +67,12 @@ function QuanLiSach() {
   };
 
   // Add or update book
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Kiểm tra dữ liệu form xem đã đáp ứng đầy đủ chưa 
+    console.log("Dữ liệu form: ", form);
+
     if (editId) {
       setBooks(
         books.map((b) => (b.id === editId ? { ...form, id: editId } : b))
@@ -72,6 +80,24 @@ function QuanLiSach() {
       setEditId(null);
     } else {
       setBooks([...books, { ...form, id: Date.now(), images: form.images }]);
+      // Gọi API để upload hình ảnh lên server và lấy về URL của hình ảnh đó
+      
+      const publicIDvaUrl = []; // [{ public_id, url }, ... ] 
+      if(form.images.length > 0) { 
+        for(const img of form.images) { // Lặp qua từng hình (file) trong mảng images 
+          const result = await uploadHinhAnh(img); // Gọi API upload hình ảnh để upload hình ảnh lên Cloudinary 
+          console.log("Đang upload hình ảnh lên Cloud");
+          publicIDvaUrl.push(result); // Lưu thông tin hình ảnh (public_id và url) vào mảng
+        }
+      }
+      // Thay đổi giá trị images của form.images
+      form.images = JSON.stringify(publicIDvaUrl); // Chuyển mảng thành chuỗi JSON để lưu vào database
+
+      // Gọi API để thêm sách vào database
+      await themSach(form);
+
+      // Sau khi thêm sách thành công, chúng ta có thể làm gì đó, ví dụ như hiển thị thông báo
+      alert("Thêm sách thành công!");
     }
     setForm({
       id: null,
@@ -84,10 +110,10 @@ function QuanLiSach() {
       loaiSach: "Truyện tranh",
       soTrang: 0,
       dinhDang: "Bìa mềm",
-      soLuong: 0,
+      soLuongConLai: 0,
       giaGoc: 0,
       giaGiam: 0,
-      isbn13: "",
+      ISBN13: "",
     });
   };
 
@@ -251,21 +277,34 @@ function QuanLiSach() {
           <label className="block font-semibold mb-1">Số lượng</label>
           <input
             type="number"
-            name="soLuong"
-            value={form.soLuong}
+            name="soLuongConLai"
+            value={form.soLuongConLai}
             onChange={handleChange}
             className="w-full border rounded p-2 mb-3"
             min="0"
           />
-          <label className="block font-semibold mb-1">Giá gốc</label>
+          <label className="block font-semibold mb-1">Giá nhập</label>
           <input
             type="number"
-            name="giaGoc"
-            value={form.giaGoc}
+            name="giaNhap"
+            value={form.giaNhap}
             onChange={handleChange}
             className="w-full border rounded p-2 mb-3"
             min="0"
           />
+
+          <label className="block font-semibold mb-1">Giá bán</label>
+          <input
+            type="number"
+            name="giaBan"
+            value={form.giaBan}
+            onChange={handleChange}
+            className="w-full border rounded p-2 mb-3"
+            min="0"
+            required
+          />
+
+
           <label className="block font-semibold mb-1">Giá giảm</label>
           <input
             type="number"
@@ -278,8 +317,8 @@ function QuanLiSach() {
           <label className="block font-semibold mb-1">ISBN13</label>
           <input
             type="text"
-            name="isbn13"
-            value={form.isbn13}
+            name="ISBN13"
+            value={form.ISBN13}
             onChange={handleChange}
             className="w-full border rounded p-2 mb-3"
             required
@@ -312,7 +351,8 @@ function QuanLiSach() {
                 <th className="py-2 px-3">Số trang</th>
                 <th className="py-2 px-3">Định dạng</th>
                 <th className="py-2 px-3">Số lượng</th>
-                <th className="py-2 px-3">Giá gốc</th>
+                <th className="py-2 px-3">Giá nhập</th>
+                <th className="py-2 px-3">Giá bán</th>
                 <th className="py-2 px-3">Giá giảm</th>
                 <th className="py-2 px-3">ISBN13</th>
                 <th className="py-2 px-3">Hành động</th>
@@ -350,14 +390,17 @@ function QuanLiSach() {
                   <td className="py-2 px-3">{book.loaiSach}</td>
                   <td className="py-2 px-3">{book.soTrang}</td>
                   <td className="py-2 px-3">{book.dinhDang}</td>
-                  <td className="py-2 px-3">{book.soLuong}</td>
+                  <td className="py-2 px-3">{book.soLuongConLai}</td>
                   <td className="py-2 px-3">
-                    {book.giaGoc.toLocaleString()} VNĐ
+                    {book.giaNhap.toLocaleString()} VNĐ
+                  </td>
+                  <td className="py-2 px-3">
+                    {book.giaBan.toLocaleString()} VNĐ
                   </td>
                   <td className="py-2 px-3">
                     {book.giaGiam.toLocaleString()} VNĐ
                   </td>
-                  <td className="py-2 px-3">{book.isbn13}</td>
+                  <td className="py-2 px-3">{book.ISBN13}</td>
                   <td className="py-2 px-3">
                     <button
                       onClick={() => handleEdit(book)} // Hàm sửa sản phẩm
