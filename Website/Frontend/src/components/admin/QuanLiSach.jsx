@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { themSach } from "../../lib/sach-apis";
+import React, { useEffect, useState } from "react";
+import { capNhatSach, nhanTatCaCacQuyenSach, themSach } from "../../lib/sach-apis";
 import { uploadHinhAnh } from "../../lib/hinh-anh-apis";
 
 const initialBooks = [
@@ -75,8 +75,12 @@ function QuanLiSach() {
 
     if (editId) {
       setBooks(
-        books.map((b) => (b.id === editId ? { ...form, id: editId } : b))
+        books.map((b) => (b.id === editId ? { ...form, id: editId } : b)) // Tìm và cập nhật quyển sách có id trùng với editId (id của quyển sách đang được chỉnh sửa
       );
+
+      await capNhatSach(editId, form); 
+      alert("Cập nhật sách thành công!");
+
       setEditId(null);
     } else {
       setBooks([...books, { ...form, id: Date.now(), images: form.images }]);
@@ -91,7 +95,7 @@ function QuanLiSach() {
         }
       }
       // Thay đổi giá trị images của form.images
-      form.images = JSON.stringify(publicIDvaUrl); // Chuyển mảng thành chuỗi JSON để lưu vào database
+      form.images = publicIDvaUrl; // Chuyển mảng thành chuỗi JSON để lưu vào database
 
       // Gọi API để thêm sách vào database
       await themSach(form);
@@ -119,14 +123,42 @@ function QuanLiSach() {
 
   // Edit book
   const handleEdit = (book) => {
-    setForm({ ...book, images: [] });
-    setEditId(book.id);
+    // Đổi giá trị ngayXuatBan của quyển sách về định dạng YYYY-MM-DD để hiển thị đúng trên input type="date"
+    const ngayXuatBan = new Date(book.ngayXuatBan);
+
+    console.log("Ngày xuất bản:", ngayXuatBan);
+
+    const formattedDate = ngayXuatBan.toISOString().split("T")[0];
+
+    setForm({ ...book, ngayXuatBan: formattedDate, images: [] });
+    setEditId(book.sachID);
   };
 
   // Delete book
   const handleDelete = (id) => {
     setBooks(books.filter((b) => b.id !== id));
   };
+
+  // useEffect để gọi API lấy tất cả các quyển sách từ database khi component được mount (kết nối, hiển thị) lần đầu tiên
+  useEffect(() => {
+    const napDuLieuSach = async () => {
+      const booksData = await nhanTatCaCacQuyenSach();
+
+      // Lặp qua mảng kết quản để chúng ta chuyển trường images từ chuỗi JSON thành mảng 
+      booksData.forEach(book => {
+        if(book.images) {
+          book.images = JSON.parse(book.images); // Chuyển chuỗi JSON thành mảng  
+        } else {
+          book.images = []; // Nếu không có trường images thì gán mảng rỗng 
+        }
+      });
+
+      console.log("Dữ liệu sách nhận từ API:", booksData);
+
+      setBooks(booksData);
+    };
+    napDuLieuSach();
+  }, []);
 
   return (
     <div className="w-full mx-auto ">
@@ -359,20 +391,16 @@ function QuanLiSach() {
               </tr>
             </thead>
             <tbody>
-              {books.map((book, idx) => (
+              {books && books.length > 0 && books.map((book, idx) => (
                 <tr key={book.id} className="border-b hover:bg-gray-50">
                   <td className="py-2 px-3 font-bold">{idx + 1}</td>
                   <td className="py-2 px-3">
                     <div className="flex gap-1 flex-wrap">
                       {book.images && book.images.length > 0 ? (
-                        book.images.map((img, i) => (
+                       book.images.map((img, i) => (
                           <img
                             key={i}
-                            src={
-                              typeof img === "string"
-                                ? img
-                                : URL.createObjectURL(img)
-                            }
+                            src={img.url} 
                             alt="book"
                             className="w-10 h-10 object-cover rounded border"
                           />
