@@ -11,11 +11,11 @@ const TinTuc = sequelize.define('TinTuc', {
         type: DataTypes.STRING,
         allowNull: false,
     }, 
-    hinhAnhTieuDe: {
-        type: DataTypes.STRING,
+    hinhAnhTieuDe: { // url 
+        type: DataTypes.STRING, 
         allowNull: false,
     }, 
-    hinhAnhNoiDung: {
+    hinhAnhNoiDung: { // Hình ảnh trong phần nội dung ["url1", "url2",...] 
         type: DataTypes.TEXT, // Sử dụng TEXT để lưu mảng JSON 
         allowNull: true,
     }, 

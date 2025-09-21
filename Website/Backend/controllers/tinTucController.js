@@ -30,8 +30,6 @@ export const nhanTinTucTheoID = async (req, res) => {
 export const taoTinTucMoi = async (req, res) => {
     const { tieuDe, hinhAnhTieuDe, hinhAnhNoiDung, ngayDang, noiDung } = req.body;
 
-    console.log(req.body); 
-
     try {
         const tinTucMoi = await TinTuc.create({
             tieuDe,
@@ -55,8 +53,9 @@ export const capNhatTinTucTheoID = async (req, res) => {
     try {
         const tinTuc = await TinTuc.findByPk(tinTucID);
         if (!tinTuc) {
-            return res.status(404).json({ message: 'Tin tức không tìm thấy' });
+            return res.status(404).json({ message: 'Tin tức không tìm thấy' }); 
         }
+
         tinTuc.tieuDe = tieuDe || tinTuc.tieuDe;
         tinTuc.hinhAnhTieuDe = hinhAnhTieuDe || tinTuc.hinhAnhTieuDe;
         tinTuc.hinhAnhNoiDung = JSON.stringify(hinhAnhNoiDung) || tinTuc.hinhAnhNoiDung;
