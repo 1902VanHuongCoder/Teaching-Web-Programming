@@ -1,27 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { capNhatSach, nhanTatCaCacQuyenSach, themSach } from "../../lib/sach-apis";
-import { uploadHinhAnh } from "../../lib/hinh-anh-apis";
-
-const initialBooks = [
-  // Dữ liệu sách mẫu
-  {
-    id: 1,
-    images: [],
-    tenSach: "Thần Đồng Đất Phương Nam",
-    tacGia: "Nguyễn Nhật Ánh",
-    nhaXuatBan: "NXB Kim Đồng",
-    ngayXuatBan: "2022-01-01",
-    ngonNgu: "Tiếng Việt",
-    loaiSach: "Truyện tranh",
-    soTrang: 200,
-    dinhDang: "Bìa mềm",
-    soLuongConLai: 50,
-    giaNhap: 80000,
-    giaBan: 100000,
-    giaGiam: 90000,
-    ISBN13: "9786042091234",
-  },
-];
+import { capNhatSach, nhanTatCaCacQuyenSach, themSach, xoaSach } from "../../lib/sach-apis";
+import { uploadHinhAnh, xoaHinhAnhCloudinary } from "../../lib/hinh-anh-apis";
 
 const LOAI_SACH = [
   "Truyện tranh",
@@ -36,10 +15,10 @@ const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"]; // Định dạn
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"]; // Ngôn ngữ sách
 
 function QuanLiSach() {
-  const [books, setBooks] = useState(initialBooks);
-  const [form, setForm] = useState({
-    id: null,
-    images: [], // Mảng chứa các URL hình ảnh
+  const [books, setBooks] = useState([]); // Mảng chứa tất cả các quyển sách 
+  const [form, setForm] = useState({ // Dữ liệu form để thêm hoặc cập nhật sách
+    sachID: null,
+    images: [], // Mảng chứa các URL hình ảnh, [{public_id, url}, ...], [file, file] 
     tenSach: "",
     tacGia: "",
     nhaXuatBan: "",
@@ -77,6 +56,20 @@ function QuanLiSach() {
       setBooks(
         books.map((b) => (b.id === editId ? { ...form, id: editId } : b)) // Tìm và cập nhật quyển sách có id trùng với editId (id của quyển sách đang được chỉnh sửa
       );
+      // Nếu form.images có chứa các file (nghĩa là người dùng đã chọn hình ảnh mới để cập nhật) thì chúng ta sẽ upload hình ảnh mới lên Cloudinary
+      if(form.images.length > 0) {
+        const publicIDvaUrl = []; // [{ public_id, url }, ... ]
+        for(const img of form.images) { // Lặp qua từng hình (file) trong mảng images
+          const result = await uploadHinhAnh(img);
+          publicIDvaUrl.push(result);
+        }
+        form.images = publicIDvaUrl; // Cập nhật lại hình ảnh của sách
+      }
+      // Nếu form.images là mảng rỗng (nghĩa là người dùng không chọn hình ảnh mới để cập nhật) thì chúng ta sẽ giữ nguyên hình ảnh cũ
+      if (form.images.length === 0) {
+        const bookToEdit = books.find((b) => b.sachID === editId); // Tìm quyển sách đang được chỉnh sửa trong mảng books 
+        form.images = bookToEdit.images; // Giữ nguyên hình ảnh cũ
+      }
 
       await capNhatSach(editId, form); 
       alert("Cập nhật sách thành công!");
@@ -135,8 +128,23 @@ function QuanLiSach() {
   };
 
   // Delete book
-  const handleDelete = (id) => {
-    setBooks(books.filter((b) => b.id !== id));
+  const handleDelete = async (sachID) => {
+    setBooks(books.filter((b) => b.sachID !== sachID)); // Lọc bỏ quyển sách có id trùng với id được truyền vào hàm
+
+    // Xóa hình ảnh của quyển sách khỏi Cloudinary
+    const bookToDelete = books.find((b) => b.sachID === sachID);
+
+    console.log("Quyển sách cần xóa:", bookToDelete); 
+
+    if (bookToDelete) { // Nếu tìm thấy quyển sách cần xóa 
+      bookToDelete.images.forEach(async (img) => {
+        console.log("Đang xóa hình ảnh khỏi Cloudinary:", img); 
+        await xoaHinhAnhCloudinary(img.public_id);
+      });
+    }
+    // Xóa dữ liệu quyển sách khỏi database 
+    await xoaSach(sachID); // Gọi API xóa quyển sách khỏi database
+    alert("Xóa sách thành công!");
   };
 
   // useEffect để gọi API lấy tất cả các quyển sách từ database khi component được mount (kết nối, hiển thị) lần đầu tiên
@@ -159,6 +167,11 @@ function QuanLiSach() {
     };
     napDuLieuSach();
   }, []);
+
+  // Kiểm tra 1 biến có phải là 1 file hay không 
+  const isFile = (obj) => {
+    return obj instanceof File;
+  }
 
   return (
     <div className="w-full mx-auto ">
@@ -211,12 +224,14 @@ function QuanLiSach() {
           <div className="flex gap-2 flex-wrap">
             {form.images &&
               Array.from(form.images).map((img, idx) => (
-                <img
+                <div>
+                  <img
                   key={idx}
-                  src={typeof img === "string" ? img : URL.createObjectURL(img)}
+                  src={ isFile(img) ? URL.createObjectURL(img) : img.url }
                   alt="preview"
                   className="w-16 h-16 object-cover rounded border"
                 />
+                </div>
               ))}
           </div>
         </div>
@@ -392,7 +407,7 @@ function QuanLiSach() {
             </thead>
             <tbody>
               {books && books.length > 0 && books.map((book, idx) => (
-                <tr key={book.id} className="border-b hover:bg-gray-50">
+                <tr key={book.sachID} className="border-b hover:bg-gray-50">
                   <td className="py-2 px-3 font-bold">{idx + 1}</td>
                   <td className="py-2 px-3">
                     <div className="flex gap-1 flex-wrap">
@@ -437,7 +452,7 @@ function QuanLiSach() {
                       Sửa
                     </button>
                     <button
-                      onClick={() => handleDelete(book.id)} // Hàm xóa sản phẩm
+                      onClick={() => handleDelete(book.sachID)} // Hàm xóa sản phẩm
                       className="text-red-600 hover:underline"
                     >
                       Xóa
