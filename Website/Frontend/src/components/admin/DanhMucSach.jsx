@@ -1,15 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { capNhatDanhMucSach, nhanTatCaDanhMucSach, taoDanhMucSachMoi, xoaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 
 function DanhMucSach() {
-  const [categories, setCategories] = useState([
-    // Danh muc sách
-    "Truyện tranh",
-    "Ngôn tình",
-    "Phiêu lưu",
-    "Kinh dị",
-    "Sách giáo khoa",
-    "Sách kỹ năng",
-  ]);
+  const [categories, setCategories] = useState([]);
 
   const [input, setInput] = useState("");
 
@@ -17,22 +10,31 @@ function DanhMucSach() {
   const [editValue, setEditValue] = useState("");
 
   // Thêm danh mục
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     // event
     e.preventDefault(); // Ngăn hành động mặc định khi mình submit form đến sever (reload trang)
-    alert("Thêm danh mục: " + input);
+    alert("Thêm danh mục: " + input); 
+    
     const danhMucDaDuocThem = categories.includes(input.trim()); // kiểm tra danh mục đã tồn tại chưa
 
     if (input.trim() && !danhMucDaDuocThem) {
       // trim() để loại bỏ khoảng trắng thừa
-      setCategories([...categories, input.trim()]);
+      // setCategories([...categories, input.trim()]);
+      setCategories([...categories, {tenDanhMuc: input.trim()}]);
       setInput("");
+
+      // Gọi API để thêm danh mục vào database
+      await taoDanhMucSachMoi(input.trim()); 
     }
   };
 
   // Xóa danh mục
-  const handleDelete = (idx) => {
-    setCategories(categories.filter((_, i) => i !== idx)); 
+  const handleDelete = async (idx) => {
+    setCategories(categories.filter((_, i) => i !== idx)); // Cập nhật UI ngay lập tức 
+    // Gọi API để xóa danh mục khỏi database
+
+    await xoaDanhMucSach(categories[idx].danhMucSachID);
+
   };
 
   // Bắt đầu sửa
@@ -41,23 +43,31 @@ function DanhMucSach() {
     console.log("Danh mục hiện tại có tên là: ", categories[idx]);
 
     setEditIndex(idx);
-    setEditValue(categories[idx]);
+    setEditValue(categories[idx].tenDanhMuc); //  
   };
 
   // Lưu sửa
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault(); // Ngăn hành động mặc định khi mình submit form đến sever (reload trang)
+    
     if (editValue.trim() && !categories.includes(editValue.trim())) {
       // trim() để loại bỏ khoảng trắng thừa và kiểm tra danh mục đã tồn tại chưa
-      const danhMucDaDuocSua = [];
-      for (let i = 0; i < categories.length - 1; i++) {
-        if (i === editIndex) {
-          danhMucDaDuocSua.push(editValue.trim()); 
+
+      const danhMucDaDuocSua = []; 
+      for (let i = 0; i < categories.length ; i++) {   
+        // if (i === editIndex) {
+        //   danhMucDaDuocSua.push(editValue.trim()); 
+        // } else {
+        //   danhMucDaDuocSua.push(categories[i]);
+        // }
+        if(i === editIndex){ // Nếu là danh mục đang sửa 
+          danhMucDaDuocSua.push({...categories[i], tenDanhMuc: editValue.trim()});
         } else {
           danhMucDaDuocSua.push(categories[i]);
         }
       }
       setCategories(danhMucDaDuocSua);
+      await capNhatDanhMucSach(categories[editIndex].danhMucSachID, {tenDanhMuc: editValue.trim()});
       setEditIndex(null);
       setEditValue("");
     }
@@ -68,6 +78,19 @@ function DanhMucSach() {
     setEditIndex(null);
     setEditValue("");
   };
+
+  useEffect(() => {
+    const napTatCaDanhMucSach = async () => {
+        const data = await nhanTatCaDanhMucSach();
+        
+        console.log("Danh mục sách từ API:", data);
+
+        if(data){ // Kiểm tra data khác null hoặc undefined 
+            setCategories(data); 
+        }
+    } 
+    napTatCaDanhMucSach();
+  }, []); 
 
   return (
     <div className="max-w-xl mx-auto p-6">
@@ -98,9 +121,9 @@ function DanhMucSach() {
           Danh sách danh mục
         </h2>
         <ul>
-          {categories.map((cat, idx) => (
+          {categories && categories.length > 0 && categories.map((cat, idx) => (
             <li
-              key={idx}
+              key={idx} 
               className="flex items-center justify-between py-2 border-b last:border-b-0"
             >
               {editIndex === idx ? (
@@ -128,7 +151,7 @@ function DanhMucSach() {
                 </form>
               ) : (
                 <>
-                  <span className="flex-1">{cat}</span>
+                  <span className="flex-1">{cat.tenDanhMuc}</span>
                   <button
                     onClick={() => handleEdit(idx)}
                     className="text-blue-600 hover:underline mr-2"
