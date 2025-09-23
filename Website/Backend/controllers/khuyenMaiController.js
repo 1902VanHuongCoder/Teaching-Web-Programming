@@ -13,7 +13,7 @@ export const nhanTatCaMaKhuyenMai = async (req, res) => {
 // Tạo khuyến mãi mới
 export const taoMaKhuyenMai = async (req, res) => {
     try {
-        const { khuyenMaiID, giaTriGiam, moTa, ngayHetHan, soLuong, giaCoBan } = req.body;
+        const { khuyenMaiID, giaTriGiam, moTa, ngayHetHan, soLuong, giaCoBan, trangThai } = req.body;
         const newKhuyenMai = await KhuyenMai.create({
             khuyenMaiID,
             giaTriGiam,
@@ -21,7 +21,7 @@ export const taoMaKhuyenMai = async (req, res) => {
             ngayHetHan,
             soLuong,
             giaCoBan,
-            trangThai: true, // Mặc định khuyến mãi còn hiệu lực
+            trangThai
         });
         res.status(201).json(newKhuyenMai);
     }
