@@ -1,17 +1,30 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {useState} from "react"; 
+import { dangNhapTaiKhoan } from "../lib/nguoi-dung-apis";
 function DangNhap() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState(""); 
 
-  const xuLyDangNhap = () => {
-      // Để xử lý sau
+  const router = useNavigate(); 
+
+  const xuLyDangNhap = async (e) => {
+      e.preventDefault(); // Ngăn chặn hành vi mặc định của form (tải lại trang)
+
+      // Gọi API để đăng nhập 
+      const {status, message} = await dangNhapTaiKhoan(email, password);// 
+
+      if( status ) { // Đăng nhập thành công
+          alert("Đăng nhập thành công!");
+          router("/"); // Chuyển hướng về trang chủ 
+      }else{
+          alert("Đăng nhập thất bại! " + message);
+      }
   }
 
   return (
     // Tạo form đăng nhập gồm trường để nhập email, mật khẩu, quên mật khẩu và nút đăng nhập
     <div className="flex justify-center items-center h-screen w-screen bg-[#00718a]">
-      <form className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-sm mx-auto">
+      <form onSubmit={xuLyDangNhap} className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-sm mx-auto">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Đăng Nhập
         </h2>
@@ -20,11 +33,11 @@ function DangNhap() {
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Email</label>
           <input
-            type="email"
+            type="text"
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
+            // required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Nhập email..."
           />
@@ -55,8 +68,7 @@ function DangNhap() {
 
         {/* Submit button */}
         <button
-          onClick={xuLyDangNhap}
-          type="button"
+          type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Đăng nhập

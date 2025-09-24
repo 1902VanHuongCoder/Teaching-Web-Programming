@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { dangKyTaiKhoan } from "../lib/nguoi-dung-apis";
 
 function DangKy() {
     const [tenNguoiDung, setTenNguoiDung] = useState("");
@@ -8,15 +9,24 @@ function DangKy() {
     const [xacNhanMatKhau, setXacNhanMatKhau] = useState("");
     const [soDienThoai, setSoDienThoai] = useState("");
 
-    const xuLyDangKy = () => {
-      console.log("Đăng ký với tên người dùng:", tenNguoiDung);
-      // Để xử lý sau
+    const xuLyDangKy = async (e) => {
+        e.preventDefault(); // Ngăn chặn hành vi mặc định của form (tải lại trang)
+       console.log("Đăng ký với:", { tenNguoiDung, email, matKhau, xacNhanMatKhau, soDienThoai });
+       
+       // Kiểm tra xem mật khẩu và xác nhận mật khẩu có khớp không 
+        if (matKhau !== xacNhanMatKhau) {
+            alert("Mật khẩu và xác nhận mật khẩu không khớp!");
+            return; // Dừng quá trình đăng ký nếu không khớp
+        }
+
+       await dangKyTaiKhoan({ tenNguoiDung, email, matKhau, soDienThoai }); 
+       alert("Đăng ký thành công! Vui lòng đăng nhập."); 
     }
 
   return (
     // Tạo form đăng ký tài khoản người dùng gồm các trường như: tên người dùng(username), email, mật khẩu (password), xác nhận mật khẩu (confirm password), số điện thoại (phoneNumber)
     <div className="flex justify-center items-center h-screen w-screen bg-[#00718a]">
-      <form className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md mx-auto">
+      <form onSubmit={xuLyDangKy} className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md mx-auto">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Đăng Ký
         </h2>
@@ -31,7 +41,7 @@ function DangKy() {
             name="username"
             value={tenNguoiDung}
             onChange={(e) => setTenNguoiDung(e.target.value)}
-            required
+            required 
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Nhập tên người dùng..."
           />
@@ -41,11 +51,11 @@ function DangKy() {
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Email</label>
           <input
-            type="email"
+            type="text"
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
+            // required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Nhập email..."
           />
@@ -101,8 +111,7 @@ function DangKy() {
 
         {/* Submit button */}
         <button
-          type="button"
-          onClick={xuLyDangKy}
+          type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Đăng ký

@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs"; // Thư viện để mã hóa mật khẩu
 
 // Hàm để đăng ký người dùng mới 
 export const dangKy = async (req, res) => {
-    const { tenNguoiDung, email, matKhau, soDienThoai, avatar, diaChi} = req.body; // Lấy thông tin từ body của request
+    const { tenNguoiDung, email, matKhau, soDienThoai } = req.body; // Lấy thông tin từ body của request
     try {
         // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chưa
         const existingUser = await NguoiDung.findOne({ where: { email } });
@@ -23,8 +23,6 @@ export const dangKy = async (req, res) => {
             email,
             matKhau: hashedPassword, // Lưu mật khẩu đã mã hóa
             soDienThoai,
-            avatar,
-            diaChi
         });
         res.status(201).json({ message: "Đăng ký thành công", user: newUser });
     } catch (error) {
