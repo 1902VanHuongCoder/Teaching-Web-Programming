@@ -31,15 +31,42 @@ export const dangNhapTaiKhoan = async (email, matKhau) => {
         const data = await response.json(); 
         
         if( !response.ok ) { 
-            return { status: response.ok , message: data.message }; 
+            return { status: response.ok , message: data.message, user: null }; 
         } else {
-            return { status: response.ok , message: data.message };
+            return { status: response.ok , message: data.message, user: data.user };
         }
     } catch (error) {
         console.error('Lỗi khi đăng nhập:', error);
         throw error;
     }
 };
+
+
+// 3. Tạo hàm để cập nhật thông tin người dùng
+export const capNhatThongTinNguoiDung = async (nguoiDungID, thongTinMoi) => {
+    try {
+        const response = await fetch(`${BASE_URL}/api/nguoi-dung/${nguoiDungID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(thongTinMoi)
+        });
+        const data = await response.json(); 
+        if( !response.ok ) { 
+            return { status: response.ok , message: data.message, userData: null }; 
+        } else {
+            return { status: response.ok , message: data.message, userData: data.user };
+        }
+    }
+    catch (error) {
+        console.error('Lỗi khi cập nhật thông tin người dùng:', error);
+        throw error;
+    }
+};
+
+
+
 
 
 

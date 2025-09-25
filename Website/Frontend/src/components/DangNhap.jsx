@@ -11,10 +11,13 @@ function DangNhap() {
       e.preventDefault(); // Ngăn chặn hành vi mặc định của form (tải lại trang)
 
       // Gọi API để đăng nhập 
-      const {status, message} = await dangNhapTaiKhoan(email, password);// 
+      const {status, message, user} = await dangNhapTaiKhoan(email, password);// 
 
       if( status ) { // Đăng nhập thành công
           alert("Đăng nhập thành công!");
+          
+          localStorage.setItem("user", JSON.stringify(user)); // Lưu thông tin user vào localStorage 
+
           router("/"); // Chuyển hướng về trang chủ 
       }else{
           alert("Đăng nhập thất bại! " + message);
