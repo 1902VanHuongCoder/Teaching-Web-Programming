@@ -1,9 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
-import {useState} from "react"; 
+import {useContext, useState} from "react"; 
 import { dangNhapTaiKhoan } from "../lib/nguoi-dung-apis";
+import { UserContext } from "../contexts/user-context";
+
 function DangNhap() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); 
+  const [password, setPassword] = useState("");
+  
+  // Sử dụng user context 
+  const { setUser } = useContext(UserContext);
 
   const router = useNavigate(); 
 
@@ -17,6 +22,14 @@ function DangNhap() {
           alert("Đăng nhập thành công!");
           
           localStorage.setItem("user", JSON.stringify(user)); // Lưu thông tin user vào localStorage 
+
+          // Lưu vào trong user context 
+          // Chuyển avatar thành đối tượng trước khi lưu vào biến trạng thái user 
+          const newAvatar = user.avatar ? JSON.parse(user.avatar) : null;
+          setUser({
+            ...user,
+            avatar: newAvatar,
+          });
 
           router("/"); // Chuyển hướng về trang chủ 
       }else{

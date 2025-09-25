@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { bannerBooks } from "../lib/data";
 import { CiSearch } from "react-icons/ci";
 import image05 from "../assets/image5.png";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/user-context";
 function Banner() {
   const [currentIndex, setCurrentIndex] = useState(0); // Hook của React
   const [giaTriTimKiem, setGiaTriTimKiem] = useState("");
+
+  // Sử dụng giá trị user từ context 
+  const { user } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -43,19 +47,25 @@ function Banner() {
     }
   };
 
+  const handleChuyenDenTrangHoSoNguoiDung = () => {
+    navigate("/hosonguoidung");
+  }
+
   return (
     <div className="w-full px-4">
       {/* Slides */}
       <div className="flex justify-between items-center px-10 py-3.5 bg-[#00809D] text-white">
         <div className="flex items-center">
-          <div className="w-[40px] h-[40px] rounded-full overflow-hidden mr-4">
+          <div onClick={handleChuyenDenTrangHoSoNguoiDung} className="w-[40px] h-[40px] rounded-full overflow-hidden mr-4">
             {/* Avatar */}
-            <img src={image05} alt="avatar" />
+            <img src={user?.avatar.url || image05} alt="avatar" />
           </div>
           <div>
             {/* Tên người dùng */}
-            <p className="text-white font-semibold">Khang</p>
-            <p className=" text-sm text-gray-300">khang@gmail.com</p>
+            <p className="text-white font-semibold">
+              {user?.tenNguoiDung || "Người dùng"}
+            </p>
+            <p className=" text-sm text-gray-300">{user?.email || "Email"}</p>
           </div>
         </div>
         <div className="w-1/2 relative">
@@ -65,11 +75,12 @@ function Banner() {
             className="w-full rounded-full bg-white outline-none p-2 text-black px-4"
             value={giaTriTimKiem}
             onChange={(e) => setGiaTriTimKiem(e.target.value)}
-            onKeyDown={xuLyTimKiemKhiEnter} 
+            onKeyDown={xuLyTimKiemKhiEnter}
           />
-          <div 
-           onClick={xuLyTimKiem}
-           className="absolute top-2.5 right-4 text-black text-xl font-extrabold">
+          <div
+            onClick={xuLyTimKiem}
+            className="absolute top-2.5 right-4 text-black text-xl font-extrabold"
+          >
             <CiSearch />
           </div>
         </div>
