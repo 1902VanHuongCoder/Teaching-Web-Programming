@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { capNhatSach, nhanTatCaCacQuyenSach, themSach, xoaSach } from "../../lib/sach-apis";
 import { uploadHinhAnh, xoaHinhAnhCloudinary } from "../../lib/hinh-anh-apis";
+import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 
 const LOAI_SACH = [
   "Truyện tranh",
@@ -173,6 +174,25 @@ function QuanLiSach() {
     return obj instanceof File;
   }
 
+
+
+  // Tạo thêm 1 biến trạng thái để lưu dữ liệu danh mục sách 
+  const [danhMucSach, setDanhMucSach] = useState([]); 
+
+  // Nạp dữ liệu danh mục sách 
+  useEffect(() => {
+    const napDanhMucSach = async () => {
+      const duLieuDM = await nhanTatCaDanhMucSach();
+      if(duLieuDM) {
+        console.log("Dữ liệu danh mục sách:", duLieuDM);
+        setDanhMucSach(duLieuDM); 
+      }
+    }
+    napDanhMucSach();
+  }, []);
+
+
+
   return (
     <div className="w-full mx-auto ">
       <h1 className="text-2xl font-bold mb-6 text-[#00809D]">Quản lý sách</h1>
@@ -189,7 +209,6 @@ function QuanLiSach() {
               e.preventDefault();
               e.stopPropagation();
             }}
-            
             onDrop={(e) => {
               e.preventDefault(); // Ngăn trình duyệt thực hiện hành động mặc định (ví dụ: mở ảnh trong tab mới khi thả file vào trình duyệt)
               e.stopPropagation(); // Ngăn sự kiện nổi bọt lên các phần tử cha
@@ -226,11 +245,11 @@ function QuanLiSach() {
               Array.from(form.images).map((img, idx) => (
                 <div>
                   <img
-                  key={idx}
-                  src={ isFile(img) ? URL.createObjectURL(img) : img.url }
-                  alt="preview"
-                  className="w-16 h-16 object-cover rounded border"
-                />
+                    key={idx}
+                    src={isFile(img) ? URL.createObjectURL(img) : img.url}
+                    alt="preview"
+                    className="w-16 h-16 object-cover rounded border"
+                  />
                 </div>
               ))}
           </div>
@@ -287,18 +306,21 @@ function QuanLiSach() {
             ))}
           </select>
           <label className="block font-semibold mb-1">Loại sách</label>
+          
           <select
             name="loaiSach"
             value={form.loaiSach}
             onChange={handleChange}
             className="w-full border rounded p-2 mb-3"
           >
-            {LOAI_SACH.map((loai) => (
-              <option key={loai} value={loai}>
-                {loai}
+            {danhMucSach.map((loai) => (
+              <option key={loai.danhMucSachID} value={loai.danhMucSachID}>
+                {loai.tenDanhMuc}
               </option>
             ))}
           </select>
+
+
           <label className="block font-semibold mb-1">Số trang</label>
           <input
             type="number"
@@ -350,7 +372,6 @@ function QuanLiSach() {
             min="0"
             required
           />
-
 
           <label className="block font-semibold mb-1">Giá giảm</label>
           <input
@@ -406,60 +427,62 @@ function QuanLiSach() {
               </tr>
             </thead>
             <tbody>
-              {books && books.length > 0 && books.map((book, idx) => (
-                <tr key={book.sachID} className="border-b hover:bg-gray-50">
-                  <td className="py-2 px-3 font-bold">{idx + 1}</td>
-                  <td className="py-2 px-3">
-                    <div className="flex gap-1 flex-wrap">
-                      {book.images && book.images.length > 0 ? (
-                       book.images.map((img, i) => (
-                          <img
-                            key={i}
-                            src={img.url} 
-                            alt="book"
-                            className="w-10 h-10 object-cover rounded border"
-                          />
-                        ))
-                      ) : (
-                        <span className="text-gray-400">Không có ảnh</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-2 px-3">{book.tenSach}</td>
-                  <td className="py-2 px-3">{book.tacGia}</td>
-                  <td className="py-2 px-3">{book.nhaXuatBan}</td>
-                  <td className="py-2 px-3">{book.ngayXuatBan}</td>
-                  <td className="py-2 px-3">{book.ngonNgu}</td>
-                  <td className="py-2 px-3">{book.loaiSach}</td>
-                  <td className="py-2 px-3">{book.soTrang}</td>
-                  <td className="py-2 px-3">{book.dinhDang}</td>
-                  <td className="py-2 px-3">{book.soLuongConLai}</td>
-                  <td className="py-2 px-3">
-                    {book.giaNhap.toLocaleString()} VNĐ
-                  </td>
-                  <td className="py-2 px-3">
-                    {book.giaBan.toLocaleString()} VNĐ
-                  </td>
-                  <td className="py-2 px-3">
-                    {book.giaGiam.toLocaleString()} VNĐ
-                  </td>
-                  <td className="py-2 px-3">{book.ISBN13}</td>
-                  <td className="py-2 px-3">
-                    <button
-                      onClick={() => handleEdit(book)} // Hàm sửa sản phẩm
-                      className="text-blue-600 hover:underline mr-2"
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(book.sachID)} // Hàm xóa sản phẩm
-                      className="text-red-600 hover:underline"
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {books &&
+                books.length > 0 &&
+                books.map((book, idx) => (
+                  <tr key={book.sachID} className="border-b hover:bg-gray-50">
+                    <td className="py-2 px-3 font-bold">{idx + 1}</td>
+                    <td className="py-2 px-3">
+                      <div className="flex gap-1 flex-wrap">
+                        {book.images && book.images.length > 0 ? (
+                          book.images.map((img, i) => (
+                            <img
+                              key={i}
+                              src={img.url}
+                              alt="book"
+                              className="w-10 h-10 object-cover rounded border"
+                            />
+                          ))
+                        ) : (
+                          <span className="text-gray-400">Không có ảnh</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-2 px-3">{book.tenSach}</td>
+                    <td className="py-2 px-3">{book.tacGia}</td>
+                    <td className="py-2 px-3">{book.nhaXuatBan}</td>
+                    <td className="py-2 px-3">{book.ngayXuatBan}</td>
+                    <td className="py-2 px-3">{book.ngonNgu}</td>
+                    <td className="py-2 px-3">{book.loaiSach}</td>
+                    <td className="py-2 px-3">{book.soTrang}</td>
+                    <td className="py-2 px-3">{book.dinhDang}</td>
+                    <td className="py-2 px-3">{book.soLuongConLai}</td>
+                    <td className="py-2 px-3">
+                      {book.giaNhap.toLocaleString()} VNĐ
+                    </td>
+                    <td className="py-2 px-3">
+                      {book.giaBan.toLocaleString()} VNĐ
+                    </td>
+                    <td className="py-2 px-3">
+                      {book.giaGiam.toLocaleString()} VNĐ
+                    </td>
+                    <td className="py-2 px-3">{book.ISBN13}</td>
+                    <td className="py-2 px-3">
+                      <button
+                        onClick={() => handleEdit(book)} // Hàm sửa sản phẩm
+                        className="text-blue-600 hover:underline mr-2"
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        onClick={() => handleDelete(book.sachID)} // Hàm xóa sản phẩm
+                        className="text-red-600 hover:underline"
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

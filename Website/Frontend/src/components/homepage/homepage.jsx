@@ -5,6 +5,7 @@ import Footer from "../Footer";
 import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
+import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 
 const CATEGORIES = [
   // Danh mục
@@ -25,7 +26,7 @@ const PRICE_RANGES = [
 ];
 
 function Homepage() {
-  const [selectedCategory, setSelectedCategory] = useState("Tất cả"); // Danh mục được chọn
+  const [selectedCategory, setSelectedCategory] = useState(0); // Danh mục được chọn
   const [selectedPrice, setSelectedPrice] = useState("all"); // Vùng giá được chọn
 
   const [chuDeTrangWeb, setChuDeTrangWeb] = useState("light");
@@ -36,12 +37,11 @@ function Homepage() {
 
   // Lọc sản phẩm theo danh mục và giá
   const filteredProducts = danhSachSanPham.filter((product) => {
-
     // Sử dụng ChatGPT để hiểu hơn về đoạn code này.
     let matchCategory =
-      selectedCategory === "Tất cả" ||
-      (product.category &&
-        product.category.toLowerCase() === selectedCategory.toLowerCase());
+      selectedCategory == 0 || // '0' => 0 , 
+      (product.loaiSach &&
+        product.loaiSach === selectedCategory);
     let matchPrice = true;
     if (selectedPrice === "<50000") {
       matchPrice = product.giaGiam < 50000;
@@ -53,17 +53,13 @@ function Homepage() {
     return matchCategory && matchPrice;
   });
 
-
-
-
   // Thêm useEffect để nạp dữ liệu thật từ sever
   useEffect(() => {
     const napTatCaSanPham = async () => {
       const data = await nhanTatCaCacQuyenSach();
       if (data) {
-
-        // Chuyển đổi chuỗi JSON của trường images thành mảng để sử dụng 
-        data.forEach(sach => {
+        // Chuyển đổi chuỗi JSON của trường images thành mảng để sử dụng
+        data.forEach((sach) => {
           sach.images = JSON.parse(sach.images);
         });
 
@@ -73,9 +69,26 @@ function Homepage() {
     napTatCaSanPham();
   }, []);
 
+  // Thêm 1 biến trạng thái để lưu trữ danh mục sản phẩm
+  const [danhMucSach, setDanhMucSach] = useState([]);
+  // Thêm 1 useEffect để nạp dữ liệu danh mục sản phẩm từ server
+  useEffect(() => {
+    const napDanhMucSach = async () => {
+      const data = await nhanTatCaDanhMucSach();
+   
+      if (data) {
+        // Bổ sung thêm vào danh sách danh mục một mục "Tất cả" ở đầu tiên
+        data.unshift({ danhMucSachID: 0, tenDanhMuc: "Tất cả" });
 
-  
+      console.log(data); 
 
+        setDanhMucSach(data);
+      }
+    };
+    napDanhMucSach();
+  }, []);
+
+  console.log("Danh mục sách:", selectedCategory  ); 
   return (
     <div className="bg-[#00809D] min-h-screen h-fit">
       {/* Thanh điều hướng - Navigation */}
@@ -113,9 +126,9 @@ function Homepage() {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                {danhMucSach.map((cat) => (
+                  <option key={cat.danhMucSachID} value={cat.danhMucSachID}>
+                    {cat.tenDanhMuc}
                   </option>
                 ))}
               </select>

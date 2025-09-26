@@ -53,6 +53,10 @@ function ChiTietSanPham() {
 
   }, [sachID]);
 
+
+  
+
+
   if(!chiTietSanPham) {
     return <div>Đang tải chi tiết sản phẩm...</div>;
   }
@@ -183,10 +187,10 @@ function ChiTietSanPham() {
       </div>
 
       {/* Bình luận */}
-      {/* <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
+      <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
         <h3 className="text-2xl font-bold text-[#00809D] mb-4">Bình luận</h3>
         <div className="space-y-4">
-          {chiTietSanPham.binhLuan.map(
+          {/* {chiTietSanPham.binhLuan.map(
             (
               c,
               idx // comment, c = {user: ..., rating: ..., comment: ...}
@@ -206,9 +210,9 @@ function ChiTietSanPham() {
                 <p className="text-gray-700 ml-2">{c.comment}</p>
               </div>
             )
-          )}
+          )} */}
         </div>
-      </div> */}
+      </div>
 
       {/* Sách liên quan */}
       <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
