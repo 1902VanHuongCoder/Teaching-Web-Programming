@@ -1,0 +1,22 @@
+Mục tiêu video 
++ Hiển thị danh sách sản phẩm ở trang chủ 
++ Cho phép người dùng ấn vào một sản phẩm bất kì để xem chi tiết
++ Chuyển đến trang chi tiết sản phẩm và hiển thị thông tin chi tiết đầy đủ của sản phẩm đó
+
+Các Bước Thực Hiện Trong Video
+B1:  Sử dụng useEffect ở trang chủ (homepage) để gọi hàm nạp tất cả sản phẩm từ sach-apis.js (hàm đã được viết trong video trước)
+
+B2: Sửa lại phần hiển thị danh sách sản phẩm trong phần HTML của homepage để hiển thị đúng danh sách sản phẩm
+
+B3: Cho phép click vào 1 sản phẩm và chuyển đến trang chi tiết sản phẩm (khi chuyển cần truyền sachID)
+
+B4: Xuống backend bổ sung thêm 1 hàm nhận sản phẩm dựa trên ID để lấy về chi tiết của một sản phẩm 
+
+B5: Vào sach-apis.js bổ sung thêm 1 lời gọi API nhận sản phẩm dựa trên ID để sử dụng trong trang chi tiết sản phẩm 
+
+B6: Vào trang chi tiết sản phẩm và sử dụng useEffect để nạp dữ liệu chi tiết của sản phẩm đó về dựa trên sachID được truyền từ trang chủ 
+
+B7: Sửa HTML trong phần return của trang chi tiết sản phẩm để hiển thị dữ liệu sản phẩm chi tiết.
+
+
+

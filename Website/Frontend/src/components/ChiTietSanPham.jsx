@@ -1,51 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "./Navigation";
 import { FaStar, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
 import Footer from "./Footer";
-import {products} from "../lib/data"; 
-import { Link } from "react-router-dom";
-const product = {
-  hinhAnh: [
-    "https://cungdocsach.vn/wp-content/uploads/2019/10/Harry-potter-v%C3%A0-h%C3%B2n-%C4%91%C3%A1-ph%C3%B9-th%E1%BB%A7y.gif",
-    "https://media.themoviedb.org/t/p/w600_and_h900_bestv2/9Mi8yPrkA0EefbVyE0CHs8tajsg.jpg",
-    "https://www.essential-guide-to-autism.com/storage/images/harry-potter-va-hon-da-phu-thuy/harry-potter-va-hon-da-phu-thuy-thumb.jpg",
-  ],
-  tenSP: "Harry Potter và Hòn Đá Phù Thủy",
-  tacGia: "J.K. Rowling",
-  nhaXuatBan: "NXB Trẻ",
-  ngayXuatBan: "2023-09-15",
-  ngonNgu: "Tiếng Việt",
-  loaiSach: "Tiểu thuyết giả tưởng",
-  soTrang: 432,
-  dinhDang: "Bìa cứng",
-  kichThuoc: "15 x 23 cm",
-  soLuongConLai: 8,
-  gia: 180000,
-  giaGiam: 145000,
-  ISBN10: "6041234567",
-  ISBN13: "978-604-123456-7",
-  danhGia: 4.7,
-  chiTiet: `Harry Potter và Hòn Đá Phù Thủy là tập đầu tiên trong bộ truyện huyền thoại Harry Potter. 
-  Câu chuyện xoay quanh cậu bé mồ côi Harry, người phát hiện ra mình là một phù thủy và bắt đầu hành trình tại trường Hogwarts. 
-  Với tình tiết hấp dẫn, phép thuật kỳ ảo và thông điệp về tình bạn, lòng dũng cảm, cuốn sách đã chinh phục hàng triệu độc giả.`,
-  binhLuan: [
-    {
-      user: "Nguyễn Văn A",
-      comment: "Sách hay, dịch dễ hiểu. Bìa đẹp nữa!",
-      rating: 5,
-    },
-    {
-      user: "Trần Thị B",
-      comment: "Giao hàng nhanh, sách mới nguyên. Nội dung hấp dẫn.",
-      rating: 4,
-    },
-    { user: "Lê Minh C", comment: "Giá hơi cao nhưng đáng tiền.", rating: 4.5 },
-  ],
-};
+// import {chiTietSanPhams} from "../lib/data"; 
+import { Link, useParams } from "react-router-dom";
+import { layChiTietSach } from "../lib/sach-apis";
 
 function ChiTietSanPham() {
   const [anhIndex, setAnhIndex] = useState(0);
   const [soLuong, setSoLuong] = useState(1);
+
+  // Biến trạng thái để lưu trữ thông tin sản phẩm
+  const [chiTietSanPham, setChiTietSanPham] = useState(null); 
+
+  // Sử dụng useParam để lấy sachID 
+  const { sachID } = useParams();
 
   const giamSoLuong = () => {
     // variable scope
@@ -56,11 +25,37 @@ function ChiTietSanPham() {
   };
 
   const tangSoLuong = () => {
-    if (soLuong < product.soLuongConLai) {
+    if (soLuong < chiTietSanPham.soLuongConLai) {
       let soLuongMoi = soLuong + 1;
       setSoLuong(soLuongMoi);
     }
   };
+
+
+  // Sử dụng useEffect để nạp dữ liệu sản phẩm từ server dựa vào sachID
+  useEffect(() => {
+     const napChiTietSanPham = async () => {
+
+        const chiTietSanPham = await layChiTietSach(sachID);
+
+        if(chiTietSanPham) {
+
+          // Chuyển dữ liệu hình ảnh (images) về dạng mảng 
+          chiTietSanPham.images = JSON.parse(chiTietSanPham.images);
+
+          console.log("Chi tiết sản phẩm từ server:", chiTietSanPham);
+
+          setChiTietSanPham(chiTietSanPham);
+        }
+     }
+
+     napChiTietSanPham();
+
+  }, [sachID]);
+
+  if(!chiTietSanPham) {
+    return <div>Đang tải chi tiết sản phẩm...</div>;
+  }
 
   return (
     <div className="bg-[#f5f7fa] min-h-screen w-full">
@@ -71,16 +66,16 @@ function ChiTietSanPham() {
         <div className="flex flex-col items-center">
           <div className="w-[350px] h-[500px] rounded-xl overflow-hidden shadow-lg mb-4 bg-white flex items-center justify-center">
             <img
-              src={product.hinhAnh[anhIndex]}
-              alt={product.tenSP}
+              src={chiTietSanPham.images[anhIndex].url}
+              alt={chiTietSanPham.tenSP}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex gap-2">
-            {product.hinhAnh.map((img, idx) => (
+            {chiTietSanPham.images.map((img, idx) => (
               <img
                 key={idx}
-                src={img}
+                src={img.url}
                 alt={"Ảnh phụ " + (idx + 1)}
                 className={`w-16 h-24 object-cover rounded cursor-pointer border-2 ${
                   anhIndex === idx ? "border-blue-500" : "border-transparent"
@@ -96,61 +91,71 @@ function ChiTietSanPham() {
         {/* Thông tin sản phẩm */}
         <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col gap-4">
           <h2 className="text-3xl font-bold text-[#00809D] mb-2">
-            {product.tenSP}
+            {chiTietSanPham.tenSach}
           </h2>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-yellow-400 flex">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <FaStar
-                  key={i}
-                  className={
-                    i < Math.round(product.danhGia) ? "" : "text-gray-300"
-                  }
-                />
-              ))}
-            </span>
-            <span className="text-gray-600 ml-2">{product.danhGia}/5</span>
-          </div>
+          {chiTietSanPham.danhGia && (
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-yellow-400 flex">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < Math.round(chiTietSanPham.danhGia)
+                        ? ""
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
+              </span>
+              <span className="text-gray-600 ml-2">
+                {chiTietSanPham.danhGia}/5
+              </span>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-gray-700 text-base">
             <div>
-              <span className="font-semibold">Tác giả:</span> {product.tacGia}
+              <span className="font-semibold">Tác giả:</span>{" "}
+              {chiTietSanPham.tacGia}
             </div>
             <div>
               <span className="font-semibold">Nhà xuất bản:</span>{" "}
-              {product.nhaXuatBan}
+              {chiTietSanPham.nhaXuatBan}
             </div>
             <div>
               <span className="font-semibold">Ngày xuất bản:</span>{" "}
-              {product.ngayXuatBan}
+              {chiTietSanPham.ngayXuatBan}
             </div>
             <div>
-              <span className="font-semibold">Ngôn ngữ:</span> {product.ngonNgu}
+              <span className="font-semibold">Ngôn ngữ:</span>{" "}
+              {chiTietSanPham.ngonNgu}
             </div>
             <div>
               <span className="font-semibold">Loại sách:</span>{" "}
-              {product.loaiSach}
+              {chiTietSanPham.loaiSach}
             </div>
             <div>
-              <span className="font-semibold">Số trang:</span> {product.soTrang}
+              <span className="font-semibold">Số trang:</span>{" "}
+              {chiTietSanPham.soTrang}
             </div>
             <div>
               <span className="font-semibold">Định dạng:</span>{" "}
-              {product.dinhDang}
+              {chiTietSanPham.dinhDang}
             </div>
             <div>
               <span className="font-semibold">Số lượng còn lại:</span>{" "}
-              {product.soLuongConLai}
+              {chiTietSanPham.soLuongConLai}
             </div>
             <div>
-              <span className="font-semibold">ISBN13:</span> {product.ISBN13}
+              <span className="font-semibold">ISBN13:</span>{" "}
+              {chiTietSanPham.ISBN13}
             </div>
           </div>
           <div className="flex items-center gap-4 mt-4">
-            <span className="text-2xl text-[#00f821] font-bold">
-              {product.giaGiam.toLocaleString()} VNĐ
+            <span className={`text-2xl text-[#00f821] font-bold ${chiTietSanPham.giaGiam ? "" : "hidden"}`}>
+              {chiTietSanPham.giaGiam.toLocaleString()} VNĐ
             </span>
-            <span className="text-gray-400 line-through text-lg">
-              {product.gia.toLocaleString()} VNĐ
+            <span className={`text-xl ${chiTietSanPham.giaGiam ? "text-gray-400 line-through" : "text-[#00f821] font-bold"}`}>
+              {chiTietSanPham.giaBan.toLocaleString()} VNĐ
             </span>
           </div>
           <div className="flex items-center gap-4 mt-4">
@@ -167,28 +172,21 @@ function ChiTietSanPham() {
             >
               <FaPlus />
             </button>
-            <Link to="/giohang" className="flex items-center gap-2 bg-[#00809D] text-white px-6 py-2 rounded-full font-bold hover:bg-[#006b85] ml-6 transition-all">
+            <Link
+              to="/giohang"
+              className="flex items-center gap-2 bg-[#00809D] text-white px-6 py-2 rounded-full font-bold hover:bg-[#006b85] ml-6 transition-all"
+            >
               <FaShoppingCart /> Thêm vào giỏ hàng
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Chi tiết sản phẩm */}
-      <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
-        <h3 className="text-2xl font-bold text-[#00809D] mb-4">
-          Chi tiết sản phẩm
-        </h3>
-        <p className="text-gray-700 text-base leading-relaxed">
-          {product.chiTiet}
-        </p>
-      </div>
-
       {/* Bình luận */}
-      <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
+      {/* <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
         <h3 className="text-2xl font-bold text-[#00809D] mb-4">Bình luận</h3>
         <div className="space-y-4">
-          {product.binhLuan.map(
+          {chiTietSanPham.binhLuan.map(
             (
               c,
               idx // comment, c = {user: ..., rating: ..., comment: ...}
@@ -210,7 +208,7 @@ function ChiTietSanPham() {
             )
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* Sách liên quan */}
       <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
@@ -218,24 +216,24 @@ function ChiTietSanPham() {
           Sách liên quan
         </h3>
         <ul className="grid grid-cols-4 gap-6 ">
-          {products.map((product) => (
-            <li key={product.maSP} className="w-full h-fit rounded-md">
+          {/* {chiTietSanPhams.map((chiTietSanPham) => (
+            <li key={chiTietSanPham.maSP} className="w-full h-fit rounded-md">
               <div className="w-full h-[350px] rounded-xl overflow-hidden">
                 <img
-                  src={product.hinhAnh}
-                  alt={product.tenSP}
+                  src={chiTietSanPham.hinhAnh}
+                  alt={chiTietSanPham.tenSP}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="p-2 bg-transparent">
                 <h4 className="font-semibold uppercase py-2">
-                  {product.tenSP}
+                  {chiTietSanPham.tenSP}
                 </h4>
                 <p className=" text-[#205d28] font-bold">
-                  {product.giaGiam.toLocaleString()} VNĐ
+                  {chiTietSanPham.giaGiam.toLocaleString()} VNĐ
                 </p>
                 <p className="text-gray-500 line-through text-sm mt-2">
-                  Giá gốc: {product.gia.toLocaleString()} VNĐ
+                  Giá gốc: {chiTietSanPham.gia.toLocaleString()} VNĐ
                 </p>
                 <Link to="/giohang" className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-[#00809D] text-white py-1 px-2 w-full rounded-full font-bold">
                   <span>
@@ -245,7 +243,7 @@ function ChiTietSanPham() {
                 </Link>
               </div>
             </li>
-          ))}
+          ))} */}
         </ul>
       </div>
       <Footer />

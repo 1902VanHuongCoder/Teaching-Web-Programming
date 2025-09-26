@@ -92,3 +92,24 @@ export const xoaSach = async (req, res) => {
 
 
 
+
+
+// Hàm để lấy thông tin chi tiết của một quyển sách dựa trên ID của quyển sách
+export const layChiTietSach = async (req, res) => {
+    try {
+        const { sachID } = req.params;
+        const sach = await Sach.findByPk(sachID);
+        if (!sach) {
+            return res.status(404).json({ error: "Sách không tồn tại." });
+        }
+        res.json(sach);
+    } catch (error) {
+        console.error("Lỗi khi lấy chi tiết sách:", error);
+        res.status(500).json({ error: "Đã xảy ra lỗi khi lấy chi tiết sách." });
+    }
+}
+
+
+
+
+
