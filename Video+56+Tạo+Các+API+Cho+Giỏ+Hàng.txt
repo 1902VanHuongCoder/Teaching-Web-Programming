@@ -1,0 +1,247 @@
+# 🛒 Mô phỏng mối quan hệ giữa GioHang, ChiTietGioHang, và Sach Models
+
+## 📋 Tổng quan các Models
+
+### 🏪 Model GioHang (Shopping Cart)
+- gioHangID (Primary Key)
+- nguoiDungID (Foreign Key → NguoiDung)
+- ngayTao
+- createdAt, updatedAt
+
+### 📦 Model ChiTietGioHang (Cart Items - Bảng trung gian)
+- chiTietGioHangID (Primary Key)
+- gioHangID (Foreign Key → GioHang)
+- sachID (Foreign Key → Sach)
+- soLuong
+- giaLucThem
+- tongGia
+- createdAt, updatedAt
+
+### 📚 Model Sach (Book)
+- sachID (Primary Key)
+- tenSach
+- images
+- giaGiam
+- soLuong
+- ...
+
+---
+
+## 🔗 Mối quan hệ giữa các Models
+
+```
+NguoiDung (1) ←→ (1) GioHang ←→ (n) ChiTietGioHang ←→ (1) Sach (n)
+    |                    |                  |                    |
+    |                    |                  |                    |
+User ID: 123        Cart ID: 1       Cart Item ID: 1      Book ID: 101
+                                     Cart Item ID: 2      Book ID: 102
+                                     Cart Item ID: 3      Book ID: 103
+```
+
+### Giải thích quan hệ:
+- **NguoiDung ↔ GioHang**: 1-1 (Một người dùng có một giỏ hàng)
+- **GioHang ↔ ChiTietGioHang**: 1-n (Một giỏ hàng có nhiều items - mục)
+- **Sach ↔ ChiTietGioHang**: 1-n (Một sách có thể trong nhiều giỏ hàng khác nhau)
+- **GioHang ↔ Sach**: n-n (Many-to-Many thông qua ChiTietGioHang)
+
+---
+
+## 💾 Dữ liệu mẫu
+
+### Bảng NguoiDung
+```
+nguoiDungID | tenNguoiDung | email
+------------|--------------|----------------
+123         | Nguyễn A     | a@gmail.com
+124         | Trần B       | b@gmail.com
+```
+
+### Bảng GioHang
+```
+gioHangID | nguoiDungID | ngayTao
+----------|-------------|------------------
+1         | 123         | 2024-09-29 10:00
+2         | 124         | 2024-09-29 11:00
+```
+
+### Bảng Sach
+```
+sachID | tenSach              | giaGiam | soLuong
+-------|---------------------|---------|--------
+101    | Thần Đồng Đất Nam   | 50000   | 10
+102    | Ngôn Tình           | 35000   | 8
+103    | Phiêu Lưu Kỳ Thú    | 45000   | 15
+104    | Sách Kỹ Năng       | 80000   | 5
+```
+
+### Bảng ChiTietGioHang
+```
+chiTietGioHangID | gioHangID | sachID | soLuong | giaLucThem | tongGia
+-----------------|-----------|--------|---------|------------|--------
+1                | 1         | 101    | 2       | 50000      | 100000
+2                | 1         | 102    | 1       | 35000      | 35000
+3                | 1         | 103    | 3       | 45000      | 135000
+4                | 2         | 101    | 1       | 50000      | 50000
+5                | 2         | 104    | 2       | 80000      | 160000
+```
+
+---
+
+## 🎯 Kịch bản sử dụng
+
+### Kịch bản 1: Người dùng 123 có giỏ hàng với 3 loại sách
+```
+Người dùng: Nguyễn A (ID: 123)
+Giỏ hàng: ID = 1
+├── Item 1: Thần Đồng Đất Nam × 2 cuốn = 100,000 VNĐ
+├── Item 2: Ngôn Tình × 1 cuốn = 35,000 VNĐ
+└── Item 3: Phiêu Lưu Kỳ Thú × 3 cuốn = 135,000 VNĐ
+TỔNG CONG: 270,000 VNĐ
+```
+
+### Kịch bản 2: Người dùng 124 có giỏ hàng với 2 loại sách
+```
+Người dùng: Trần B (ID: 124)
+Giỏ hàng: ID = 2
+├── Item 1: Thần Đồng Đất Nam × 1 cuốn = 50,000 VNĐ
+└── Item 2: Sách Kỹ Năng × 2 cuốn = 160,000 VNĐ
+TỔNG CONG: 210,000 VNĐ
+```
+
+---
+
+## 📊 Truy vấn SQL tương ứng
+
+### 1. Lấy giỏ hàng của người dùng 123
+```sql
+SELECT 
+    gh.gioHangID,
+    gh.nguoiDungID,
+    gh.ngayTao,
+    ctgh.chiTietGioHangID,
+    ctgh.soLuong,
+    ctgh.giaLucThem,
+    ctgh.tongGia,
+    s.sachID,
+    s.tenSach,
+    s.images,
+    s.giaGiam,
+    s.soLuong AS soLuongTonKho
+FROM giohang gh
+LEFT JOIN chitietgiohang ctgh ON gh.gioHangID = ctgh.gioHangID
+LEFT JOIN sach s ON ctgh.sachID = s.sachID
+WHERE gh.nguoiDungID = 123;
+```
+
+### 2. Thêm sách mới vào giỏ hàng
+```sql
+-- Bước 1: Kiểm tra giỏ hàng tồn tại
+SELECT * FROM giohang WHERE nguoiDungID = 123;
+
+-- Bước 2: Thêm item mới
+INSERT INTO chitietgiohang (gioHangID, sachID, soLuong, giaLucThem, tongGia)
+VALUES (1, 104, 1, 80000, 80000);
+```
+
+### 3. Cập nhật số lượng
+```sql
+UPDATE chitietgiohang 
+SET soLuong = 5, tongGia = soLuong * giaLucThem
+WHERE chiTietGioHangID = 1;
+```
+
+### 4. Xóa item khỏi giỏ hàng
+```sql
+DELETE FROM chitietgiohang WHERE chiTietGioHangID = 2;
+```
+
+---
+
+## 🔄 Sequelize Include Query
+
+### Lấy giỏ hàng kèm chi tiết
+```javascript
+const gioHang = await GioHang.findOne({
+    where: { nguoiDungID: 123 },
+    include: [{
+        model: ChiTietGioHang,
+        include: [{
+            model: Sach,
+            attributes: ['sachID', 'tenSach', 'images', 'giaGiam', 'soLuong']
+        }]
+    }]
+});
+```
+
+### Kết quả JSON
+```json
+{
+    "gioHangID": 1,
+    "nguoiDungID": 123,
+    "ngayTao": "2024-09-29T10:00:00.000Z",
+    "ChiTietGioHangs": [
+        {
+            "chiTietGioHangID": 1,
+            "soLuong": 2,
+            "giaLucThem": 50000,
+            "tongGia": 100000,
+            "Sach": {
+                "sachID": 101,
+                "tenSach": "Thần Đồng Đất Nam",
+                "images": "[...]",
+                "giaGiam": 50000,
+                "soLuong": 10
+            }
+        },
+        {
+            "chiTietGioHangID": 2,
+            "soLuong": 1,
+            "giaLucThem": 35000,
+            "tongGia": 35000,
+            "Sach": {
+                "sachID": 102,
+                "tenSach": "Ngôn Tình",
+                "images": "[...]",
+                "giaGiam": 35000,
+                "soLuong": 8
+            }
+        }
+    ]
+}
+```
+
+---
+
+## 🎯 Các trường hợp sử dụng
+
+### ✅ Thêm sản phẩm vào giỏ
+1. Kiểm tra sách tồn tại
+2. Kiểm tra số lượng tồn kho
+3. Tìm/tạo giỏ hàng
+4. Kiểm tra sản phẩm đã có trong giỏ chưa
+5. Thêm mới hoặc cập nhật số lượng
+
+### ✅ Cập nhật số lượng
+1. Tìm chi tiết giỏ hàng
+2. Kiểm tra số lượng mới hợp lệ
+3. Kiểm tra tồn kho
+4. Cập nhật số lượng và tổng giá
+
+### ✅ Xóa sản phẩm
+1. Tìm chi tiết giỏ hàng
+2. Xóa record
+
+### ✅ Lấy thông tin giỏ hàng
+1. Join 3 bảng: GioHang + ChiTietGioHang + Sach
+2. Tính tổng tiền
+3. Trả về dữ liệu có cấu trúc
+
+---
+
+## 💡 Lưu ý quan trọng
+
+- **giaLucThem**: Lưu giá tại thời điểm thêm vào giỏ (không thay đổi khi giá sách thay đổi)
+- **tongGia**: Luôn = soLuong × giaLucThem
+- **Validation**: Luôn kiểm tra tồn kho trước khi thêm/cập nhật
+- **Performance**: Sử dụng include để giảm số query
+- **Consistency**: Sử dụng transaction khi cần thiết
