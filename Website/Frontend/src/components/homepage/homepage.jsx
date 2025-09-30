@@ -6,6 +6,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
+import { themSanPhamVaoGioHang } from "../../lib/gio-hang-apis";
 
 const CATEGORIES = [
   // Danh mục
@@ -89,6 +90,27 @@ function Homepage() {
   }, []);
 
   console.log("Danh mục sách:", selectedCategory  ); 
+
+
+  // Hàm để xử lý thêm sản phẩm vào giỏ hàng 
+  const handleThemSanPhamVaoGioHang = async (sachID, soLuong, giaLucThem) => {
+    const storedUser = localStorage.getItem("user"); 
+    if(!storedUser) {
+      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      return; 
+    }
+    const user = JSON.parse(storedUser);
+    const nguoiDungID = user.nguoiDungID;
+
+    const phanHoiTuSever = await themSanPhamVaoGioHang(nguoiDungID, sachID, soLuong, giaLucThem);
+
+    if(phanHoiTuSever && phanHoiTuSever.success) {
+        alert("Đã thêm sản phẩm vào giỏ hàng!");
+    } else {
+        alert("Thêm sản phẩm vào giỏ hàng thất bại! " + (phanHoiTuSever.message || ""));
+    }
+  };
+
   return (
     <div className="bg-[#00809D] min-h-screen h-fit">
       {/* Thanh điều hướng - Navigation */}
@@ -185,15 +207,15 @@ function Homepage() {
                   {product.giaBan.toLocaleString()} VNĐ
                 </p>
 
-                <Link
-                  to="/giohang"
+                <button
+                  onClick={() => handleThemSanPhamVaoGioHang(product.sachID, 1, product.giaGiam || product.giaBan)}
                   className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-white text-[#00809D] py-1 px-2 w-full rounded-full font-bold"
                 >
                   <span>
                     <FaShoppingCart />
                   </span>
                   <span>Thêm Giỏ Hàng</span>
-                </Link>
+                </button>
               </div>
             </li>
           ))}

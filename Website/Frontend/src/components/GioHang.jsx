@@ -1,57 +1,95 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
-import { products } from "../lib/data";
 import { Link } from "react-router-dom";
-
-// Dữ liệu giỏ hàng mẫu 
-const initialCart = [ 
-  {
-    id: 1,
-    image: products[0]?.hinhAnh,
-    title: products[0]?.tenSP,
-    author: products[0]?.tacGia || "Tác giả A",
-    price: products[0]?.giaGiam,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    image: products[1]?.hinhAnh,
-    title: products[1]?.tenSP,
-    author: products[1]?.tacGia || "Tác giả B",
-    price: products[1]?.giaGiam,
-    quantity: 1,
-  },
-];
-
-
+import {
+  capNhatSoLuongSanPham,
+  layGioHangTheoNguoiDung,
+  xoaSanPhamKhoiGioHang,
+} from "../lib/gio-hang-apis";
+import { useEffect } from "react";
 
 function GioHang() {
   // State lưu danh sách sản phẩm trong giỏ hàng
-  const [cart, setCart] = useState(initialCart);
+  const [cart, setCart] = useState([]);
 
-  // Hàm tăng/giảm số lượng sản phẩm
+  // Biến trạng thái để lưu phần tổng tiền giỏ hàng
+  const [tongTien, setTongTien] = useState(0);
+
+  // Ref để lưu timeout ID cho debouncing
+  const timeoutRef = useRef(null); 
+
+  // Hàm tăng/giảm số lượng sản phẩm với debouncing
   function updateQuantity(index, delta) {
-    // Tạo bản sao mới của giỏ hàng
+
+    // Cập nhật số lượng trên UI trước (immediate update)
     const newCart = [...cart];
-    // Tăng/giảm số lượng, không cho nhỏ hơn 1
-    newCart[index].quantity = Math.max(1, newCart[index].quantity + delta);
+    newCart[index].soLuong = Math.max(1, newCart[index].soLuong + delta);
     setCart(newCart);
+
+    // Cập nhật tổng tiền
+    const newTotal = newCart.reduce(
+      (total, item) => total + item.giaLucThem * item.soLuong,
+      0
+    );
+    setTongTien(newTotal);
+
+    // Clear timeout trước đó nếu có (debouncing)
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Tạo timeout mới để gọi API sau 500ms khi người dùng ngừng thay đổi
+    timeoutRef.current = setTimeout(async () => {
+      const chiTietGioHangID = newCart[index].chiTietGioHangID;
+      const soLuong = newCart[index].soLuong;
+      
+      try {
+        await capNhatSoLuongSanPham(chiTietGioHangID, soLuong);
+        console.log("Đã cập nhật số lượng trên server:", soLuong);
+      } catch (error) {
+        console.error("Lỗi khi cập nhật số lượng:", error);
+        // Có thể hiển thị thông báo lỗi cho user
+      }
+    }, 500); // Đợi 500ms sau khi user ngừng thay đổi
+
   }
 
   // Hàm xóa sản phẩm khỏi giỏ hàng
-  function removeItem(index) {
-    // Lọc ra các sản phẩm khác sản phẩm bị xóa
-    const newCart = cart.filter((_, i) => i !== index);
+  async function removeItem(index) {
+    // Cập nhật trên UI trước 
+    const newCart = cart.filter((_, i) => i !== index); 
     setCart(newCart);
+
+    // Cập nhật tổng tiền
+    const newTotal = newCart.reduce(
+      (total, item) => total + item.giaLucThem * item.soLuong,
+      0
+    );
+    setTongTien(newTotal);
+
+    // Gọi API để xóa sản phẩm khỏi giỏ hàng trên server
+    const chiTietGioHangID = cart[index].chiTietGioHangID;
+    await xoaSanPhamKhoiGioHang(chiTietGioHangID);
+
   }
 
-  // Tính tổng tiền các sản phẩm trong giỏ
-  let subtotal = 0;
-  for (let item of cart) {
-    subtotal += item.price * item.quantity;
-  }
+  // Nạp dữ liệu giỏ hàng từ sever sử dụng useEffect
+  useEffect(() => {
+    const napDuLieuGioHang = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) return;
+
+      const data = await layGioHangTheoNguoiDung(user.nguoiDungID);
+      if (data && data.success) {
+        setCart(data.gioHang.ChiTietGioHangs || []);
+        setTongTien(data.gioHang.tongTien || 0);
+        console.log("Dữ liệu giỏ hàng từ server:", data);
+      }
+    };
+    napDuLieuGioHang();
+  }, []);
 
   return (
     <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
@@ -60,7 +98,8 @@ function GioHang() {
         <h1 className="text-3xl font-bold text-[#00809D] mb-8 text-center">
           Giỏ Hàng
         </h1>
-        {cart.length === 0 ? (
+
+        {!cart && cart.length < 0 ? (
           <div className="bg-white rounded-xl shadow p-8 text-center">
             <p className="text-lg text-gray-700 mb-4">
               Giỏ hàng của bạn đang trống.
@@ -77,58 +116,56 @@ function GioHang() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b">
-                  <th className="py-2">Sản phẩm</th>
-                  <th className="py-2">Tác giả</th>
-                  <th className="py-2">Đơn giá</th>
-                  <th className="py-2">Số lượng</th>
-                  <th className="py-2">Tạm tính</th>
-                  <th></th>
+                  <th className="py-2">Số thứ tự</th>
+                  <th className="py-2">Hình ảnh</th>
+                  <th className="py-2">Tên sản phẩm</th>
+                  <th className="py-2">Số lượng </th>
+                  <th className="py-2">Giá sản phẩm</th>
+                  <th className="py-2">Hành động</th>
                 </tr>
               </thead>
               <tbody>
-                {cart.map((item, idx) => (
-                  <tr key={idx} className="border-b hover:bg-[#f5f7fa]">
-                    <td className="py-3 flex items-center gap-4">
+                {cart.map((item, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="py-4">{index + 1}</td>
+                    <td className="py-4">
                       <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-16 h-24 object-cover rounded shadow"
+                        src={
+                          item.Sach?.images
+                            ? JSON.parse(item.Sach.images)[0].url
+                            : ""
+                        }
+                        alt={item.Sach?.tenSach}
+                        className="w-16 h-20 object-cover rounded"
                       />
-                      <span className="font-semibold text-[#00809D]">
-                        {item.title}
-                      </span>
                     </td>
-                    <td className="py-3">{item.author}</td>
-                    <td className="py-3 font-bold">
-                      {item.price.toLocaleString()}đ
+                    <td className="py-4">
+                      {item.Sach?.tenSach || "Tên sách không tồn tại"}
                     </td>
-                    <td className="py-3">
-                      <div className="flex items-center gap-2">
+                    <td className="py-4">
+                      <div className="flex items-center">
                         <button
-                          type="button"
-                          className="p-1 bg-gray-100 rounded-full border hover:bg-[#e0eafc]"
-                          onClick={() => updateQuantity(idx, -1)}
+                          onClick={() => updateQuantity(index, -1)}
+                          className="p-2 bg-gray-200 rounded-l hover:bg-gray-300"
                         >
                           <FaMinus />
                         </button>
-                        <span className="px-2 font-bold">{item.quantity}</span>
+                        <span className="px-4">{item.soLuong}</span>
                         <button
-                          type="button"
-                          className="p-1 bg-gray-100 rounded-full border hover:bg-[#e0eafc]"
-                          onClick={() => updateQuantity(idx, 1)}
+                          onClick={() => updateQuantity(index, 1)}
+                          className="p-2 bg-gray-200 rounded-r hover:bg-gray-300"
                         >
                           <FaPlus />
                         </button>
                       </div>
                     </td>
-                    <td className="py-3 font-bold">
-                      {(item.price * item.quantity).toLocaleString()}đ
+                    <td className="py-4">
+                      {item.giaLucThem.toLocaleString()}đ
                     </td>
-                    <td className="py-3">
+                    <td className="py-4">
                       <button
-                        type="button"
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => removeItem(idx)}
+                        onClick={() => removeItem(index)}
+                        className="text-red-600 hover:text-red-800"
                       >
                         <FaTrash />
                       </button>
@@ -137,6 +174,7 @@ function GioHang() {
                 ))}
               </tbody>
             </table>
+
             <div className="flex justify-between items-center mt-8">
               <Link
                 to="/"
@@ -145,7 +183,7 @@ function GioHang() {
                 &larr; Tiếp tục mua sắm
               </Link>
               <div className="text-xl font-bold text-[#00809D]">
-                Tổng cộng: {subtotal.toLocaleString()}đ
+                Tổng cộng: {tongTien.toLocaleString()}đ
               </div>
               <Link
                 to="/thanhtoan"
@@ -163,6 +201,3 @@ function GioHang() {
 }
 
 export default GioHang;
-
-
-

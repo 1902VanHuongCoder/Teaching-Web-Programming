@@ -1,10 +1,10 @@
 import express from 'express';
-import { capNhatSoLuongSanPham, layGioHangTheoNguoiDung, themSanPhamVaoGioHang, xoaSanPhamKhoiGioHang, xoaToanBoGioHang } from '../controllers/gioHangController';
+import { capNhatSoLuongSanPham, demSoLuongSanPhamTrongGioHang, layGioHangTheoNguoiDung, themSanPhamVaoGioHang, xoaSanPhamKhoiGioHang, xoaToanBoGioHang } from '../controllers/gioHangController.js';
 const router = express.Router();
 
 router.get("/:nguoiDungID", layGioHangTheoNguoiDung);
 
-router.get("/dem-so-luong/:nguoiDungID", layGioHangTheoNguoiDung);
+router.get("/dem-so-luong/:nguoiDungID", demSoLuongSanPhamTrongGioHang);
 
 router.post("/", themSanPhamVaoGioHang);
 
