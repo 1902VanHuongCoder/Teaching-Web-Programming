@@ -15,6 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { capNhatSoLuongSanPham, layGioHangTheoNguoiDung, xoaSanPhamKhoiGioHang } from "../lib/gio-hang-apis";
 import { useRef } from "react";
+import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
 
 // Danh sách các sản phẩm trong giỏ hàng
 const cartItems = [
@@ -58,8 +59,8 @@ const PAYMENT_METHODS = [
 ];
 
 function ThanhToan() {
-    // Ref để lưu timeout ID cho debouncing
-    const timeoutRef = useRef(null); 
+  // Ref để lưu timeout ID cho debouncing
+  const timeoutRef = useRef(null);
 
   // Biến trạng thái để lưu trữ dữ liệu giỏ hàng
   const [cart, setCart] = useState([]);
@@ -87,7 +88,7 @@ function ThanhToan() {
 
   // Giảm giá
   const [coupon, setCoupon] = useState(""); // Lưu cái mã giảm giá mà người dùng nhập vào
-  const [discount, setDiscount] = useState(0); // Lưu giá trị giảm giá tính theo phần
+  const [discount, setDiscount] = useState(0); // Lưu giá trị giảm giá tính theo
 
   const router = useNavigate();
   // Điều khoản
@@ -150,26 +151,13 @@ function ThanhToan() {
     await xoaSanPhamKhoiGioHang(chiTietGioHangID);
   }
 
-  // Tính toán giá tiền tổng cộng
-  const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  // Biến trạng thái để lưu giá trị tổng tiền
+  const [tongTien, setTongTien] = useState(0);
 
   const shippingFee =
     SHIPPING_METHODS.find((m) => m.value === shipping.method)?.fee || 0; // Phí vận chuyển
-  const tax = Math.round(subtotal * 0.05); // 5% VAT
-  const total = subtotal - discount + shippingFee + tax;
-
-  // Coupon handler (demo: code "SALE10" giảm 10%)
-  const applyCoupon = () => {
-    if (coupon.trim().toUpperCase() === "SALE10") {
-      setDiscount(Math.round(subtotal * 0.1));
-    } else {
-      setDiscount(0);
-      alert("Mã giảm giá không hợp lệ!");
-    }
-  };
+  const tax = Math.round(tongTien * 0.05); // 5% VAT
+  const total = tongTien - discount + shippingFee + tax;
 
   // Tính toán ngày giao hàng dự kiến
   const estimatedDate = () => {
@@ -192,9 +180,6 @@ function ThanhToan() {
     router("/xacnhandonhang");
   };
 
-  // Biến trạng thái để lưu giá trị tổng tiền
-  const [tongTien, setTongTien] = useState(0);
-
   // Nạp dữ liệu giỏ hàng từ sever sử dụng useEffect
   useEffect(() => {
     const napDuLieuGioHang = async () => {
@@ -210,6 +195,50 @@ function ThanhToan() {
     };
     napDuLieuGioHang();
   }, []);
+
+  // Khởi tạo giá trị ban đầu cho thông tin người dùng
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      // Kiểm tra xem có dữ liệu user trong localStorage không
+      const duLieuNguoiDung = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
+      setCustomer({
+        name: duLieuNguoiDung.tenNguoiDung || "",
+        email: duLieuNguoiDung.email || "",
+        phone: duLieuNguoiDung.soDienThoai || "",
+      });
+    }
+  }, []);
+
+  const hamKiemTraMaGiamGia = async () => {
+    const response = await nhanMaKhuyenMaiTheoID(coupon); // response = { success: true/false, khuyenMai: { ... } }
+    console.log("Phản hồi từ server về mã giảm giá:", response);
+    if (response && response.success) {
+      // Kiểm tra mã khuyến mãi còn hạn không
+      if (!response.khuyenMai.trangThai) {
+        alert("Mã giảm giá đã hết hạn sử dụng!");
+        return;
+      }
+      // Kiểm tra xem với giá trị đơn hiện tại có thể sử dụng được không
+      if (total < response.khuyenMai.giaCoBan) {
+        alert("Đơn hàng của bạn chưa đủ điều kiện để sử dụng mã giảm giá này!");
+        return;
+      }
+
+      // Kiểm tra xem số lượng còn lại của mã khuyến mãi có đủ sử dụng không
+      if (response.khuyenMai.soLuong <= 0) {
+        alert("Mã giảm giá đã hết số lượng sử dụng!");
+        return;
+      }
+      // Nếu tất cả điều kiện đều thỏa mãn, áp dụng mã giảm giá
+      const phanTramGiamGia = response.khuyenMai.giaTriGiam || 0;
+      const soTienDuocGiam = Math.round(tongTien * (phanTramGiamGia / 100));
+      setDiscount(soTienDuocGiam);
+      alert("Áp dụng mã giảm giá thành công!");
+    } else {
+      alert("Mã giảm giá không hợp lệ!");
+    }
+  };
 
   return (
     <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
@@ -241,6 +270,7 @@ function ThanhToan() {
                 className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
                 placeholder="Email"
                 value={customer.email}
+                disabled // vô hiệu hóa trường input này
                 onChange={(e) =>
                   setCustomer({ ...customer, email: e.target.value })
                 }
@@ -369,7 +399,7 @@ function ThanhToan() {
               <button
                 type="button"
                 className="bg-gradient-to-r from-[#00809D] to-[#00b4d8] text-white px-6 py-3 rounded-lg font-bold shadow hover:from-[#006b85] hover:to-[#0096c7] transition"
-                onClick={applyCoupon}
+                onClick={hamKiemTraMaGiamGia}
               >
                 Áp dụng
               </button>
@@ -440,10 +470,7 @@ function ThanhToan() {
                       </div>
                       <div className="text-gray-500 text-sm">
                         {/* Tạm tính: {(item.price * item.quantity).toLocaleString()}đ */}
-                        Tạm tính:{" "}
-
-
-                        {(item.tongGia).toLocaleString()}đ
+                        Tạm tính: {item.tongGia.toLocaleString()}đ
                       </div>
                     </div>
                   </li>
@@ -468,7 +495,7 @@ function ThanhToan() {
             <div className="flex justify-between py-2 text-lg">
               <span>Giảm giá:</span>
               <span className="text-green-600">
-                -{discount.toLocaleString()}đ
+                - {discount.toLocaleString()}đ
               </span>
             </div>
             <div className="flex justify-between py-2 text-lg">

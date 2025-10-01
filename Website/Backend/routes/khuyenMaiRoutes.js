@@ -1,10 +1,13 @@
 import express from 'express';
-import { capNhatMaKhuyenMai, nhanTatCaMaKhuyenMai, taoMaKhuyenMai, xoaMaKhuyenMai } from '../controllers/khuyenMaiController.js';
+import { capNhatMaKhuyenMai, nhanMaKhuyenMaiTheoID, nhanTatCaMaKhuyenMai, taoMaKhuyenMai, xoaMaKhuyenMai } from '../controllers/khuyenMaiController.js';
 
 const router = express.Router();
 
 // Nhận tất cả khuyến mãi
 router.get("/", nhanTatCaMaKhuyenMai);
+
+// Lấy khuyến mãi theo ID
+router.get("/:khuyenMaiID", nhanMaKhuyenMaiTheoID);
 
 // Tạo khuyến mãi mới
 router.post("/", taoMaKhuyenMai);

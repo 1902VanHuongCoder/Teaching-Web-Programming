@@ -1,0 +1,3 @@
+1. Hiển thị dữ liệu mặc định cho người ở phần thông tin thanh toán 
+
+2. Kiểm tra mã giảm giá và áp mã giảm giá 
