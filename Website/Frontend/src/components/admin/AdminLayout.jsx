@@ -12,6 +12,9 @@ const sidebarLinks = [
   { label: "Giao dịch kho", to: "/admin/giaodichkho" },
   { label: "Quản lý tin tức", to: "/admin/tintuc" },
   { label: "Nhập kho sách", to: "/admin/nhapkhosach" },
+
+  
+  { label: "Phương thức giao hàng", to: "/admin/phuong-thuc-giao-hang" },
 ]; 
 
 function AdminLayout() {
