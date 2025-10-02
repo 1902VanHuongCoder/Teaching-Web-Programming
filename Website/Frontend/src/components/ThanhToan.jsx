@@ -13,36 +13,20 @@ import Footer from "./Footer";
 import { products } from "../lib/data";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { capNhatSoLuongSanPham, layGioHangTheoNguoiDung, xoaSanPhamKhoiGioHang } from "../lib/gio-hang-apis";
+import {
+  capNhatSoLuongSanPham,
+  layGioHangTheoNguoiDung,
+  xoaSanPhamKhoiGioHang,
+} from "../lib/gio-hang-apis";
 import { useRef } from "react";
 import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
+import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis";
+import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
 
-// Danh sách các sản phẩm trong giỏ hàng
-const cartItems = [
-  {
-    id: 1, // ID sản phẩm 1
-    image: products[0]?.hinhAnh, // Hình ảnh sản phẩm
-    title: products[0]?.tenSP, // Tên sản phẩm
-    author: products[0]?.tacGia || "Tác giả A", // Tác giả sản phẩm
-    price: products[0]?.giaGiam, // Giá sản phẩm
-    quantity: 2, // Số lượng sản phẩm
-  },
-  {
-    id: 2,
-    image: products[1]?.hinhAnh,
-    title: products[1]?.tenSP,
-    author: products[1]?.tacGia || "Tác giả B",
-    price: products[1]?.giaGiam,
-    quantity: 1,
-  },
-];
+import tinhTP from "../lib/duLieuTinhTP";
+import { tinhPhiVanChuyen } from "../lib/tinh-phi-van-chuyen";
 
-const SHIPPING_METHODS = [
-  // Phương thức vận chuyển
-  { label: "Giao hàng tiêu chuẩn (3–5 ngày)", value: "standard", fee: 20000 },
-  { label: "Giao hàng nhanh (1–2 ngày)", value: "express", fee: 40000 },
-  { label: "Nhận tại cửa hàng", value: "pickup", fee: 0 },
-];
+
 
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
@@ -62,6 +46,15 @@ function ThanhToan() {
   // Ref để lưu timeout ID cho debouncing
   const timeoutRef = useRef(null);
 
+  // Biến trạng thái để lưu trữ danh sách phương thức giao hàng từ server
+  const [shippingMethods, setShippingMethods] = useState([]);
+
+  // Biến trạng thái để lưu trữ danh sách xã phường theo tỉnh/thành phố
+  const [wards, setWards] = useState([]);
+
+  // Biến trạng thái để lưu trữ phí vận chuyển
+  const [phiVanChuyen, setPhiVanChuyen] = useState(0);
+
   // Biến trạng thái để lưu trữ dữ liệu giỏ hàng
   const [cart, setCart] = useState([]);
 
@@ -70,11 +63,10 @@ function ThanhToan() {
 
   // Thông tin vận chuyển
   const [shipping, setShipping] = useState({
-    tinhThanhPho: "",
-    quanHuyen: "",
+    tinhThanhPho: 92,
     xaPhuong: "",
     diaChiCuThe: "",
-    phuongThucGiaoHang: SHIPPING_METHODS[0].value, // standard
+    phuongThucGiaoHang: "", // standard
   });
 
   // Payment info
@@ -153,20 +145,32 @@ function ThanhToan() {
 
   // Biến trạng thái để lưu giá trị tổng tiền
   const [tongTien, setTongTien] = useState(0);
+  
+  const tax = Math.round(tongTien * 0.05); // 5% VAT 
 
-  const shippingFee =
-    SHIPPING_METHODS.find((m) => m.value === shipping.method)?.fee || 0; // Phí vận chuyển
-  const tax = Math.round(tongTien * 0.05); // 5% VAT
-  const total = tongTien - discount + shippingFee + tax;
+  const total = tongTien - discount + phiVanChuyen + tax;
 
   // Tính toán ngày giao hàng dự kiến
   const estimatedDate = () => {
+    // const now = new Date();
+    // let days = 5;
+    // if (shipping.method === "express") days = 2;
+    // if (shipping.method === "pickup") return "Nhận ngay tại cửa hàng";
+    // now.setDate(now.getDate() + days);
+    // return now.toLocaleDateString();
+    
+    // Dựa trên thời gian giao hàng tương ứng với mỗi phương thức giao hàng để tính toán ngày giao hàng dự kiến
     const now = new Date();
-    let days = 5;
-    if (shipping.method === "express") days = 2;
-    if (shipping.method === "pickup") return "Nhận ngay tại cửa hàng";
-    now.setDate(now.getDate() + days);
-    return now.toLocaleDateString();
+    
+    // Tìm phương thức giao hàng đã chọn
+    const method = shippingMethods.find(m => m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang));
+
+    // Tính toán ngày giao hàng dự kiến
+    if (!method) return "Chưa chọn phương thức giao hàng";
+
+    now.setDate(now.getDate() + method.thoiGianGiaoHang); 
+
+    return now.toLocaleDateString(); // 10/02/2025 
   };
 
   // Hàm để thực thi yêu cầu mua hàng
@@ -240,6 +244,44 @@ function ThanhToan() {
     }
   };
 
+  // Nạp danh sách phương thức giao hàng từ server
+  useEffect(() => {
+    const napPhuongThucGiaoHang = async () => {
+      // Giả sử gọi API để lấy danh sách phương thức giao hàng
+      const response = await layTatCaPhuongThucGiaoHang();
+      if (response && response.success) {
+        console.log("Danh sách phương thức giao hàng:", response.data);
+
+        setShippingMethods(response.data);
+      }
+    };
+    napPhuongThucGiaoHang();
+  }, []);
+
+  // Cập nhật lại danh sách xã phường khi thay đổi tỉnh/thành phố
+  useEffect(() => {
+    const duLieuXaPhuong = nhanDanhSachXaPhuong(shipping.tinhThanhPho);
+    setWards(duLieuXaPhuong);
+    console.log("Hàm tính toán lại xã phường đã chạy lại");
+  }, [shipping.tinhThanhPho]);
+
+
+
+
+
+
+  // Tính toán lại phí vận chuyển khi thay đổi tỉnh/thành phố
+  useEffect(() => {
+    const phiVanChuyen = tinhPhiVanChuyen(shipping.tinhThanhPho);
+
+    console.log("Phí vận chuyển tính được:", phiVanChuyen); 
+
+    setPhiVanChuyen(phiVanChuyen);
+  }, [shipping.tinhThanhPho]);
+
+
+
+
   return (
     <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
       <Navigation />
@@ -293,7 +335,7 @@ function ThanhToan() {
               <FaMapMarkerAlt /> Thông tin giao hàng
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input
+              {/* <input
                 required
                 className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
                 placeholder="Tỉnh / Thành Phố"
@@ -301,8 +343,24 @@ function ThanhToan() {
                 onChange={(e) =>
                   setShipping({ ...shipping, tinhThanhPho: e.target.value })
                 }
-              />
-              <input
+              /> */}
+
+              <select
+                required
+                className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
+                value={shipping.tinhThanhPho}
+                onChange={(e) =>
+                  setShipping({ ...shipping, tinhThanhPho: e.target.value })
+                }
+              >
+                {tinhTP.map((tp) => (
+                  <option key={tp.code} value={tp.code}>
+                    {tp.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* <input
                 required
                 className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
                 placeholder="Quận / Huyện"
@@ -310,8 +368,9 @@ function ThanhToan() {
                 onChange={(e) =>
                   setShipping({ ...shipping, quanHuyen: e.target.value })
                 }
-              />
-              <input
+              /> */}
+
+              {/* <input
                 required
                 className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
                 placeholder="Xã / Phường"
@@ -319,7 +378,23 @@ function ThanhToan() {
                 onChange={(e) =>
                   setShipping({ ...shipping, xaPhuong: e.target.value })
                 }
-              />
+              /> */}
+
+              <select
+                required
+                className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
+                value={shipping.xaPhuong}
+                onChange={(e) =>
+                  setShipping({ ...shipping, xaPhuong: e.target.value })
+                }
+              >
+                {wards.map((ward) => (
+                  <option key={ward.code} value={ward.code}>
+                    {ward.name}
+                  </option>
+                ))}
+              </select>
+
               <input
                 required
                 className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
@@ -344,16 +419,20 @@ function ThanhToan() {
                   })
                 }
               >
-                {SHIPPING_METHODS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}{" "}
-                    {m.fee === 0
-                      ? "(Miễn phí)"
-                      : `(+${m.fee.toLocaleString()}đ)`}
-                  </option>
-                ))}
+                {shippingMethods.length > 0 &&
+                  shippingMethods.map((m) => (
+                    <option
+                      key={m.phuongThucGiaoHangID}
+                      value={m.phuongThucGiaoHangID}
+                    >
+                      {m.tenPhuongThuc}
+                      {m.phiGiaoHang === 0
+                        ? " (Miễn phí)"
+                        : ` (+${m.phiGiaoHang.toLocaleString()}đ)`}
+                    </option>
+                  ))}
               </select>
-              {shippingFee === 0 && (
+              {phiVanChuyen === 0 && (
                 <span className="ml-2 text-green-600 font-semibold">
                   Miễn phí vận chuyển!
                 </span>
@@ -501,9 +580,9 @@ function ThanhToan() {
             <div className="flex justify-between py-2 text-lg">
               <span>Phí vận chuyển:</span>
               <span>
-                {shippingFee === 0
+                {phiVanChuyen === 0
                   ? "Miễn phí"
-                  : `+${shippingFee.toLocaleString()}đ`}
+                  : `+${phiVanChuyen.toLocaleString()}đ`}
               </span>
             </div>
             <div className="flex justify-between py-2 text-lg">

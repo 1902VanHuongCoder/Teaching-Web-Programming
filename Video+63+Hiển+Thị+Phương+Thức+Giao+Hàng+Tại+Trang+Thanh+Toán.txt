@@ -1,0 +1,4 @@
+1. Hiển thị dữ liệu phương thức giao hàng động tại trang thanh toán 
+
+2. Thay đổi cách nhập địa chỉ thủ công thành bộ chọn cho phép người dùng chọn địa chỉ mua hàng
+

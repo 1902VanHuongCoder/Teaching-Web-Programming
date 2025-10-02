@@ -1,0 +1,4 @@
+1. Hiển thị danh sách Phương thức giao hàng động 
+
+2. Sử dụng địa chỉ API để lấy danh sách Tỉnh/Thành phố, Quận/huyện, xã
+
