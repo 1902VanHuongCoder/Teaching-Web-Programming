@@ -25,8 +25,8 @@ import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
 
 import tinhTP from "../lib/duLieuTinhTP";
 import { tinhPhiVanChuyen } from "../lib/tinh-phi-van-chuyen";
-
-
+import DieuKhoanVaQuyDinh from "./DieuKhoanVaQuyDinh";
+import { taoDonHangMoi } from "../lib/don-hang-apis";
 
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
@@ -54,6 +54,9 @@ function ThanhToan() {
 
   // Biến trạng thái để lưu trữ phí vận chuyển
   const [phiVanChuyen, setPhiVanChuyen] = useState(0);
+
+  // Biến để lưu trạng thái ẩn hiện của modal chính sách và quy định của shop
+  const [hienThiChinhSach, setHienThiChinhSach] = useState(false);
 
   // Biến trạng thái để lưu trữ dữ liệu giỏ hàng
   const [cart, setCart] = useState([]);
@@ -145,8 +148,8 @@ function ThanhToan() {
 
   // Biến trạng thái để lưu giá trị tổng tiền
   const [tongTien, setTongTien] = useState(0);
-  
-  const tax = Math.round(tongTien * 0.05); // 5% VAT 
+
+  const tax = Math.round(tongTien * 0.05); // 5% VAT
 
   const total = tongTien - discount + phiVanChuyen + tax;
 
@@ -158,30 +161,75 @@ function ThanhToan() {
     // if (shipping.method === "pickup") return "Nhận ngay tại cửa hàng";
     // now.setDate(now.getDate() + days);
     // return now.toLocaleDateString();
-    
+
     // Dựa trên thời gian giao hàng tương ứng với mỗi phương thức giao hàng để tính toán ngày giao hàng dự kiến
     const now = new Date();
-    
+
     // Tìm phương thức giao hàng đã chọn
-    const method = shippingMethods.find(m => m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang));
+    const method = shippingMethods.find(
+      (m) => m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang)
+    );
 
     // Tính toán ngày giao hàng dự kiến
     if (!method) return "Chưa chọn phương thức giao hàng";
 
-    now.setDate(now.getDate() + method.thoiGianGiaoHang); 
+    now.setDate(now.getDate() + method.thoiGianGiaoHang);
 
-    return now.toLocaleDateString(); // 10/02/2025 
+    return now.toLocaleDateString(); // 10/02/2025
   };
 
-  // Hàm để thực thi yêu cầu mua hàng
-  const placeOrder = (e) => {
-    e.preventDefault();
-    if (!agreed) {
-      alert("Bạn cần đồng ý với Điều khoản & Chính sách đổi trả!");
+
+  const datHang = async (e) => {
+    e.preventDefault(); // Ngăn chặn hành vi mặc định của form (tải lại trang)
+
+    // Kiểm tra người dùng chọn phương thức giao hàng chưa
+    if (!shipping.phuongThucGiaoHang) {
+      alert("Vui lòng chọn phương thức giao hàng!");
       return;
     }
-    alert("Đặt hàng thành công! Cảm ơn bạn đã mua sách tại BookStore.");
-    router("/xacnhandonhang");
+    // Kiểm tra giỏ hàng có trống không
+    if (cart.length === 0) {
+      alert("Giỏ hàng của bạn đang trống!");
+      return;
+    }
+
+    // Lấy dữ liệu người dùng từ localStorage để chuẩn bị dữ liệu đẩy lên sever
+    const khachHang = JSON.parse(localStorage.getItem("user"));
+
+    // Chuẩn bị dữ liệu để tạo đơn hàng gửi lên sever
+    const duLieuDonHang = {
+      nguoiDungID: khachHang.nguoiDungID,
+      tenKhachHang: khachHang.tenNguoiDung,
+      soDienThoaiKH: customer.phone,
+      ngayDat: new Date(),
+      tongTien: total,
+      trangThai: "Chờ xác nhận",
+      diaChiGiaoHang: `${shipping.diaChiCuThe}, ${
+        wards.find((w) => w.code === parseInt(shipping.xaPhuong))?.name || ""
+      }, ${tinhTP.find((t) => t.code == shipping.tinhThanhPho)?.name || ""}`,
+      ghiChu: `Phương thức giao hàng: ${
+        shippingMethods.find(
+          (m) =>
+            m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang)
+        )?.tenPhuongThuc || ""
+      }`,
+      items: cart.map((item) => ({
+        sachID: item.sachID,
+        soLuong: item.soLuong,
+        donGia: item.giaLucThem,
+      })),
+    };
+
+    console.log(duLieuDonHang);
+
+    // Gọi API để tạo đơn hàng (sử dụng hàm có sẵn bên lib/don-hang-apis.js)
+    const response = await taoDonHangMoi(duLieuDonHang);
+    if (response && response.success) {
+      alert("Đặt hàng thành công!");
+      router("/xacnhandonhang");
+    } else {
+      alert("Đặt hàng thất bại!");
+    }
   };
 
   // Nạp dữ liệu giỏ hàng từ sever sử dụng useEffect
@@ -265,29 +313,21 @@ function ThanhToan() {
     console.log("Hàm tính toán lại xã phường đã chạy lại");
   }, [shipping.tinhThanhPho]);
 
-
-
-
-
-
   // Tính toán lại phí vận chuyển khi thay đổi tỉnh/thành phố
   useEffect(() => {
     const phiVanChuyen = tinhPhiVanChuyen(shipping.tinhThanhPho);
 
-    console.log("Phí vận chuyển tính được:", phiVanChuyen); 
+    console.log("Phí vận chuyển tính được:", phiVanChuyen);
 
     setPhiVanChuyen(phiVanChuyen);
   }, [shipping.tinhThanhPho]);
 
-
-
-
   return (
-    <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
+    <div className="relative   bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
       <Navigation />
       <form
         className="max-w-7xl mx-auto py-10 px-4 grid grid-cols-1 md:grid-cols-3 gap-8"
-        onSubmit={placeOrder}
+        onSubmit={datHang}
       >
         {/* Trái: Thông tin khách, phương thức vận chuyển, thanh toán */}
         <div className="md:col-span-2 flex flex-col gap-8">
@@ -605,9 +645,16 @@ function ThanhToan() {
               />
               <span className="text-base">
                 Tôi đồng ý với{" "}
-                <a href="#" className="text-blue-600 underline">
+                {/* <a href="#" className="text-blue-600 underline">
                   Điều khoản & Chính sách đổi trả
-                </a>
+                </a> */}
+                <button
+                  type="button"
+                  onClick={() => setHienThiChinhSach(true)}
+                  className="text-blue-600 underline"
+                >
+                  Điều khoản & Chính sách đổi trả
+                </button>
               </span>
             </div>
             <button
@@ -626,6 +673,16 @@ function ThanhToan() {
           </section>
         </div>
       </form>
+
+      {/* Modal chính sách và quy định của shop */}
+
+      {hienThiChinhSach && (
+        <DieuKhoanVaQuyDinh
+          dongChinhSach={() => {
+            setHienThiChinhSach(false);
+          }}
+        />
+      )}
       <Footer />
     </div>
   );
