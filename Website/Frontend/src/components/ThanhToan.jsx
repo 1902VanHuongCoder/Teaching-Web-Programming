@@ -27,6 +27,7 @@ import tinhTP from "../lib/duLieuTinhTP";
 import { tinhPhiVanChuyen } from "../lib/tinh-phi-van-chuyen";
 import DieuKhoanVaQuyDinh from "./DieuKhoanVaQuyDinh";
 import { taoDonHangMoi } from "../lib/don-hang-apis";
+import PayPalButton from "./PaypalButton";
 
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
@@ -72,13 +73,9 @@ function ThanhToan() {
     phuongThucGiaoHang: "", // standard
   });
 
-  // Payment info
+  // Lưu xem người dùng chọn phương nào để thanh toán
   const [payment, setPayment] = useState({
     method: PAYMENT_METHODS[0].value,
-    cardNumber: "",
-    cardName: "",
-    cardExpiry: "",
-    cardCvc: "",
   });
 
   // Giảm giá
@@ -151,7 +148,14 @@ function ThanhToan() {
 
   const tax = Math.round(tongTien * 0.05); // 5% VAT
 
-  const total = tongTien - discount + phiVanChuyen + tax;
+  // Tính phí phương thức giao hàng 
+  const phiPhuongThucGiaoHang = shippingMethods.find(
+    (m) => m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang)
+  )?.phiGiaoHang || 0;
+
+  console.log("Phí phương thức giao hàng tính được:", phiPhuongThucGiaoHang);
+
+  const total = tongTien - discount + phiPhuongThucGiaoHang + tax + phiVanChuyen; // Tổng cộng
 
   // Tính toán ngày giao hàng dự kiến
   const estimatedDate = () => {
@@ -178,9 +182,11 @@ function ThanhToan() {
     return now.toLocaleDateString(); // 10/02/2025
   };
 
-
   const datHang = async (e) => {
-    e.preventDefault(); // Ngăn chặn hành vi mặc định của form (tải lại trang)
+
+
+
+    if(e) { e.preventDefault(); }// Ngăn chặn hành vi mặc định của form (tải lại trang)
 
     // Kiểm tra người dùng chọn phương thức giao hàng chưa
     if (!shipping.phuongThucGiaoHang) {
@@ -221,6 +227,8 @@ function ThanhToan() {
     };
 
     console.log(duLieuDonHang);
+
+        alert("Tesst"); 
 
     // Gọi API để tạo đơn hàng (sử dụng hàm có sẵn bên lib/don-hang-apis.js)
     const response = await taoDonHangMoi(duLieuDonHang);
@@ -495,7 +503,7 @@ function ThanhToan() {
                     name="payment"
                     value={m.value}
                     checked={payment.method === m.value}
-                    onChange={() => setPayment({ ...payment, method: m.value })}
+                    onChange={() => setPayment({ method: m.value })}
                     className="accent-[#00809D]"
                   />
                   {m.icon} {m.label}
@@ -657,13 +665,24 @@ function ThanhToan() {
                 </button>
               </span>
             </div>
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-[#00809D] to-[#00b4d8] text-white text-xl font-bold py-4 rounded-full shadow hover:from-[#006b85] hover:to-[#0096c7] transition-all disabled:opacity-60"
-              disabled={!agreed}
-            >
-              Đặt hàng
-            </button>
+            {payment.method === "paypal" ? (
+              
+              <PayPalButton
+                termIsAccepted={agreed}
+                // Hàm để gọi khi thanh toán thành công và cung cấp đối tượng event cho hàm đó 
+                submitForm={datHang}
+                amount={total}
+              />
+            ) : (
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-[#00809D] to-[#00b4d8] text-white text-xl font-bold py-4 rounded-full shadow hover:from-[#006b85] hover:to-[#0096c7] transition-all disabled:opacity-60"
+                disabled={!agreed}
+              >
+                Đặt hàng
+              </button>
+            )}
+
             <div className="text-gray-600 text-base mt-2">
               Dự kiến giao hàng:{" "}
               <span className="font-semibold text-[#00809D]">

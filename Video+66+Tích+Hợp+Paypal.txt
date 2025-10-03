@@ -1,0 +1,5 @@
+1. Tạo tài khoản trên Paypal dev 
+
+2. Cài đặt thư viện và tạo 1 PaypalButton để hiển thị ra nút thanh toán bằng paypal cho người dùng 
+
+3. Sử dụng trong trang thanh toán 

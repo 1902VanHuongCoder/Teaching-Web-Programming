@@ -11,6 +11,7 @@
     "tailwind:init": "tailwindcss init -p"
   },
   "dependencies": {
+    "@paypal/react-paypal-js": "^8.9.2",
     "@tailwindcss/vite": "^4.1.12",
     "@tiptap/extension-bold": "^3.4.2",
     "@tiptap/extension-bullet-list": "^3.4.2",
