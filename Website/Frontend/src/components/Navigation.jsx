@@ -3,10 +3,17 @@ import logo from "../assets/Red Panda.png";
 import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { UserContext } from "../contexts/user-context";
+import { GioHangContext } from "../contexts/gio-hang-context";
 function Navigation() {
   // Sử dụng giá trị user từ context
   const { user, setUser } = useContext(UserContext);
 
+
+  // Sử dụng dữ liệu về đơn hàng để hiển thị số lượng đơn hàng trong giỏ hàng
+  const { gioHang } = useContext(GioHangContext);
+
+  // Tính số lượng sản phẩm trong giỏ hàng 
+  const soLuongSanPhamTrongGioHang = gioHang ? gioHang.reduce((total, item) => total + item.soLuong, 0) : 0; 
 
   const handleDangXuat = () => {
      // Xóa dữ liệu người dùng ra khỏi localstorage
@@ -43,8 +50,13 @@ function Navigation() {
       </div>
 
       <div className="flex items-center space-x-4">
-        <Link to="/giohang">
+        <Link to="/giohang" className="relative">
           <FaShoppingCart className="h-6 w-6" />
+          {soLuongSanPhamTrongGioHang > 0 && (
+            <span className="absolute top-0 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
+              {soLuongSanPhamTrongGioHang}
+            </span>
+          )}
         </Link>
         <div className="space-x-0">
           {user ? (

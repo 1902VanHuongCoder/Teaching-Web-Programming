@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
@@ -9,8 +9,12 @@ import {
   xoaSanPhamKhoiGioHang,
 } from "../lib/gio-hang-apis";
 import { useEffect } from "react";
+import { GioHangContext } from "../contexts/gio-hang-context";
 
 function GioHang() {
+  // Sử dụng dữ liệu giỏ hàng context để hiển thị và thao tác  
+  const { setGioHang } = useContext(GioHangContext);
+
   // State lưu danh sách sản phẩm trong giỏ hàng
   const [cart, setCart] = useState([]);
 
@@ -21,7 +25,7 @@ function GioHang() {
   const timeoutRef = useRef(null); 
 
   // Hàm tăng/giảm số lượng sản phẩm với debouncing
-  function updateQuantity(index, delta) {
+ async function updateQuantity(index, delta) {
 
     // Cập nhật số lượng trên UI trước (immediate update)
     const newCart = [...cart];
@@ -47,6 +51,21 @@ function GioHang() {
       
       try {
         await capNhatSoLuongSanPham(chiTietGioHangID, soLuong);
+
+        // Nạp dữ liệu giỏ hàng mới cho biến gioHang trong context
+        // Lấy lại tất cả các sản phẩm trong giỏ hàng để cập nhật lại số lượng sản phẩm trong giỏ hàng ở Navigation
+        const storedUser = localStorage.getItem("user");
+        if (!storedUser) return;
+        const user = JSON.parse(storedUser);
+        const nguoiDungID = user.nguoiDungID;
+
+        const data = await layGioHangTheoNguoiDung(nguoiDungID);
+        if (data) {
+          console.log("Dữ liệu giỏ hàng sau khi thêm sản phẩm:", data);
+          // Cập nhật số lượng sản phẩm trong giỏ hàng ở Navigation thông qua context
+          setGioHang(data.gioHang.ChiTietGioHangs || []);
+        }
+
         console.log("Đã cập nhật số lượng trên server:", soLuong);
       } catch (error) {
         console.error("Lỗi khi cập nhật số lượng:", error);
@@ -54,12 +73,15 @@ function GioHang() {
       }
     }, 500); // Đợi 500ms sau khi user ngừng thay đổi
 
+
+
+
   }
 
   // Hàm xóa sản phẩm khỏi giỏ hàng
   async function removeItem(index) {
-    // Cập nhật trên UI trước 
-    const newCart = cart.filter((_, i) => i !== index); 
+    // Cập nhật trên UI trước
+    const newCart = cart.filter((_, i) => i !== index);
     setCart(newCart);
 
     // Cập nhật tổng tiền
@@ -73,6 +95,19 @@ function GioHang() {
     const chiTietGioHangID = cart[index].chiTietGioHangID;
     await xoaSanPhamKhoiGioHang(chiTietGioHangID);
 
+    // Nạp dữ liệu giỏ hàng mới cho biến gioHang trong context
+    // Lấy lại tất cả các sản phẩm trong giỏ hàng để cập nhật lại số lượng sản phẩm trong giỏ hàng ở Navigation
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) return;
+    const user = JSON.parse(storedUser);
+    const nguoiDungID = user.nguoiDungID;
+
+    const data = await layGioHangTheoNguoiDung(nguoiDungID);
+    if (data) {
+      console.log("Dữ liệu giỏ hàng sau khi thêm sản phẩm:", data);
+      // Cập nhật số lượng sản phẩm trong giỏ hàng ở Navigation thông qua context
+      setGioHang(data.gioHang.ChiTietGioHangs || []); 
+    }
   }
 
   // Nạp dữ liệu giỏ hàng từ sever sử dụng useEffect

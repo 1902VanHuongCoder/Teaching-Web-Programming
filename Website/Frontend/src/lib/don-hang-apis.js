@@ -29,6 +29,27 @@ export const layTatCaDonHang = async () => {
     }
 };
 
+
+// Nhận đơn hàng của một người dùng cụ thể
+export const nhanDonHangCuaMotNguoiDung = async (nguoiDungID) => {
+    try {
+        const response = await fetch(`${BASE_URL}/api/don-hang/user/${nguoiDungID}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Lỗi khi lấy đơn hàng của người dùng:", error);
+        return [];
+    }
+};
+
 // 2. Tạo đơn hàng mới
 export const taoDonHangMoi = async (donHangData) => {
     try {

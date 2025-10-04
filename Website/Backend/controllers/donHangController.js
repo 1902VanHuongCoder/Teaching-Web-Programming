@@ -1,5 +1,5 @@
 import DonHang, { DonHang_Sach } from "../models/DonHang.js";
-import  Sach  from "../models/Sach.js";
+import Sach from "../models/Sach.js";
 
 // Nhận tất cả đơn hàng
 export const nhanTatCaDonHang = async (req, res) => {
@@ -12,6 +12,54 @@ export const nhanTatCaDonHang = async (req, res) => {
         },
       ],
     });
+    res.status(200).json(donHangs);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Nhận đơn hàng của một người dùng cụ thể
+export const nhanDonHangCuaNguoiDung = async (req, res) => {
+  try {
+    const { nguoiDungID } = req.params;
+    const donHangs = await DonHang.findAll({
+      where: { nguoiDungID },
+      include: [
+        {
+          model: Sach,
+          through: { attributes: ["soLuong", "donGia"] }, // Lấy thêm thông tin số lượng và đơn giá từ bảng trung gian
+        },
+      ],
+    });
+    /**
+     * Dư liệu trả về có dạng như sau:
+     * [
+     *  {
+     *   donHangID: 1,
+     *  nguoiDungID: 2,
+     *  tenKhachHang: "Nguyen Van A",
+     *  soDienThoaiKH: "0123456789",
+     *  ngayDat: "2023-10-10T10:00:00.000Z",
+     *  tongTien: 100000,
+     *  trangThai: "Đang xử lý",
+     *  diaChiGiaoHang: "123 Đường ABC, Quận 1, TP.HCM",
+     *  ghiChu: "Giao hàng trong giờ hành chính",
+     *  createdAt: "2023-10-10T10:00:00.000Z",
+     *  updatedAt: "2023-10-10T10:00:00.000Z",
+     *  Saches: [
+     *    {
+     *    sachID: 1,
+     *   tieuDe: "Sách A",
+     *  tacGia: "Tác giả A",
+     *  giaGiam: 50000,
+     *  images: "[{\"public_id\":\"sample\",\"url\":\"http://res.cloudinary.com/demo/image/upload/sample.jpg\"}]",
+     * createdAt: "2023-10-10T10:00:00.000Z",
+     * updatedAt: "2023-10-10T10:00:00.000Z",
+     * DonHang_Sach: { donHangID: 1, sachID: 1, soLuong: 2, donGia: 50000 }
+     * }
+     *  ]
+     *
+     */
     res.status(200).json(donHangs);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,12 +1,13 @@
 import Navigation from "../Navigation";
 import Banner from "../Banner";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Footer from "../Footer";
 import { FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
-import { themSanPhamVaoGioHang } from "../../lib/gio-hang-apis";
+import { layGioHangTheoNguoiDung, themSanPhamVaoGioHang } from "../../lib/gio-hang-apis";
+import { GioHangContext } from "../../contexts/gio-hang-context";
 
 const CATEGORIES = [
   // Danh mục
@@ -27,6 +28,9 @@ const PRICE_RANGES = [
 ];
 
 function Homepage() {
+  // Sử dụng context để lấy và cập nhật giỏ hàng
+  const { setGioHang } = useContext(GioHangContext);
+
   const [selectedCategory, setSelectedCategory] = useState(0); // Danh mục được chọn
   const [selectedPrice, setSelectedPrice] = useState("all"); // Vùng giá được chọn
 
@@ -105,6 +109,15 @@ function Homepage() {
     const phanHoiTuSever = await themSanPhamVaoGioHang(nguoiDungID, sachID, soLuong, giaLucThem);
 
     if(phanHoiTuSever && phanHoiTuSever.success) {
+
+        // Lấy lại tất cả các sản phẩm trong giỏ hàng để cập nhật lại số lượng sản phẩm trong giỏ hàng ở Navigation
+          const data = await layGioHangTheoNguoiDung(nguoiDungID);
+          if (data) {
+            console.log("Dữ liệu giỏ hàng sau khi thêm sản phẩm:", data);
+            // Cập nhật số lượng sản phẩm trong giỏ hàng ở Navigation thông qua context
+            setGioHang(data.gioHang.ChiTietGioHangs || []);
+          }
+
         alert("Đã thêm sản phẩm vào giỏ hàng!");
     } else {
         alert("Thêm sản phẩm vào giỏ hàng thất bại! " + (phanHoiTuSever.message || ""));

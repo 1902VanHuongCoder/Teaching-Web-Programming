@@ -1,0 +1,8 @@
+1. Hiển thị danh sách các đơn hàng tại trang lịch sử mua hàng 
+
+2. Cho phép xem chi tiết đơn hàng 
+
+3. Tạo một context cho giỏ hàng để lưu dữ liệu giỏ hàng dùng chung nhằm hiển thị số lượng sản phẩm trong giỏ hàng 
+
+4. Khi thêm 1 sản phẩm vào giỏ hàng tăng số lượng sản phẩm lên 1 
+

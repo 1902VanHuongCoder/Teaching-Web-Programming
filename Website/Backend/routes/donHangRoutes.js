@@ -5,12 +5,16 @@ import {
   capNhatTrangThaiDonHang,
   nhanDonHangTheoID,
   xoaDonHangTheoID,
+  nhanDonHangCuaNguoiDung,
 } from "../controllers/donHangController.js";
 
 const router = express.Router();
 
 // Tạo tuyến nhận tất cả đơn hàng
 router.get("/", nhanTatCaDonHang);
+
+// Nhận đơn hàng của một người dùng cụ thể
+router.get("/user/:nguoiDungID", nhanDonHangCuaNguoiDung);
 
 // Tạo một đơn hàng mới
 router.post("/", taoDonHangMoi);
