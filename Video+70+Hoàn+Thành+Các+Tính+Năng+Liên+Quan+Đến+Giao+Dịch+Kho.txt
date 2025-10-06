@@ -1,0 +1,14 @@
+1. Thực hiện tính năng nhập kho 
+    + Tạo giao-dich-kho-apis 
+
+2. Tạo các giao dịch kho khi có đơn hàng mới được tạo 
+    + Giảm số lượng sản phẩm khi đặt hàng thành công 
+    + Tạo các giao dịch kho tương ứng với số lượng sản phẩm trong đơn hàng 
+
+3. Sửa trường hợp khi đơn hàng bị hủy 
+    + Tăng lại số lượng sản phẩm 
+    + Tăng lại số lượng mã giảm giá 
+
+
+
+

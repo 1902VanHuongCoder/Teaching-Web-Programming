@@ -1,5 +1,8 @@
 import DonHang, { DonHang_Sach } from "../models/DonHang.js";
+import GiaoDichKho from "../models/GiaoDichKho.js";
+import KhuyenMai from "../models/KhuyenMai.js";
 import Sach from "../models/Sach.js";
+import { taoGiaoDichKho } from "./giaoDichKhoController.js";
 
 // Nhận tất cả đơn hàng
 export const nhanTatCaDonHang = async (req, res) => {
@@ -66,10 +69,12 @@ export const nhanDonHangCuaNguoiDung = async (req, res) => {
   }
 };
 
+
 // Tạo đơn hàng mới
 export const taoDonHangMoi = async (req, res) => {
   try {
     const {
+
       nguoiDungID,
       tenKhachHang,
       soDienThoaiKH,
@@ -79,6 +84,9 @@ export const taoDonHangMoi = async (req, res) => {
       diaChiGiaoHang,
       ghiChu,
       items, // { sachID, soLuong, donGia }
+
+
+      maGiamGiaDaSuDung
     } = req.body;
 
     // Tạo đơn hàng mới
@@ -91,6 +99,10 @@ export const taoDonHangMoi = async (req, res) => {
       trangThai,
       diaChiGiaoHang,
       ghiChu,
+
+
+      maGiamGiaDaSuDung
+
     });
 
     // Thêm các sách vào đơn hàng với số lượng và đơn giá tương ứng
@@ -102,6 +114,49 @@ export const taoDonHangMoi = async (req, res) => {
         donGia: item.donGia,
       });
     }
+
+
+    // Giảm số lượng tồn kho của các sách đã bán (đã có trong items)
+    for (const item of items) {
+      const sach = await Sach.findByPk(item.sachID);
+      if (sach) {
+        sach.soLuongConLai = sach.soLuongConLai - item.soLuong;
+        await sach.save();
+      }
+    }
+
+
+    // Tạo 1 giao dịch xuất kho cho từng sản phẩm trong đơn hàng 
+    for (const item of items) {
+      const sach = await Sach.findByPk(item.sachID);
+      if (sach) {
+        const giaoDichXuatKho = {
+          loaiGiaoDich: "Xuất kho",
+          ngayGiaoDich: new Date(),
+          tenSanPham: sach.tenSach,
+          soLuong: item.soLuong,
+          nguoiThucHien: "Hệ thống tự động",
+          ghiChu: `Xuất kho cho đơn hàng ID: ${donHangMoi.donHangID}`,
+          sachID: sach.sachID,
+          giaNhap: sach.giaNhap,
+          giaBan: sach.giaBan,
+        };
+        // Giả sử bạn đã có tên sản phẩm và người thực hiện từ các bảng khác
+        const newGiaoDichKho = await GiaoDichKho.create(giaoDichXuatKho);
+      }
+    }
+
+    // Nếu có áp dụng mã khuyến mãi thì phải giảm số lượng mã khuyến mãi đã sử dụng đi 1 
+    if(maGiamGiaDaSuDung) {
+      await KhuyenMai.increment("soLuong", {
+        by: -1, // Giảm đi 1
+        where: { khuyenMaiID: maGiamGiaDaSuDung },
+      });
+    }
+
+
+
+
 
     res.status(201).json(donHangMoi);
   } catch (error) {
@@ -117,8 +172,36 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
     const { trangThai } = req.body; // Lấy trạng thái mới từ body yêu cầu
 
     // Cập nhật trạng thái đơn hàng
+    
     await DonHang.update({ trangThai }, { where: { donHangID: id } });
 
+    const donHang = await DonHang.findByPk(id); 
+
+    // Khôi phục lại số lượng mã khuyến mãi khi hủy đơn hàng
+    if (trangThai === "Đã hủy") {
+
+      console.log(donHang);
+
+      if (donHang && donHang.maGiamGiaDaSuDung) {
+        console.log("Đơn hàng có áp dụng mã giảm giá và phải tiến hành khôi phục");
+        await KhuyenMai.increment("soLuong", {
+          by: 1, 
+          where: { khuyenMaiID: donHang.maGiamGiaDaSuDung },
+        });
+      }
+
+      // Khôi phục lại số lượng tồn kho của các sản phẩm trong đơn hàng
+      const chiTietDonHangs = await DonHang_Sach.findAll({ where: { donHangID: id } });
+      
+      for (const chiTiet of chiTietDonHangs) {
+        const sach = await Sach.findByPk(chiTiet.sachID);
+        if (sach) {
+          sach.soLuongConLai = sach.soLuongConLai + chiTiet.soLuong;
+          await sach.save();
+        }
+      }
+    }
+    
     res
       .status(200)
       .json({ message: "Cập nhật trạng thái đơn hàng thành công" });

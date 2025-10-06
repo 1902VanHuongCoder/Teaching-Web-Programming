@@ -1,56 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEye } from "react-icons/fa";
-
-// Demo/mock data for inventory transactions
-const initialTransactions = [
-  {
-    id: 1,
-    type: "Nhập kho",
-    date: "2025-09-10",
-    product: "Thần Đồng Đất Phương Nam",
-    quantity: 100,
-    user: "Nguyễn Văn A",
-    note: "Nhập lô mới",
-    details: [
-      { field: "Số lượng nhập", value: 100 },
-      { field: "Nhà cung cấp", value: "NXB Kim Đồng" },
-    ],
-  },
-  {
-    id: 2,
-    type: "Xuất kho",
-    date: "2025-09-12",
-    product: "Ngôn tình",
-    quantity: 20,
-    user: "Trần Thị B",
-    note: "Xuất bán cho khách",
-    details: [
-      { field: "Số lượng xuất", value: 20 },
-      { field: "Khách hàng", value: "Lê Văn C" },
-    ],
-  },
-  {
-    id: 3,
-    type: "Cập nhật kho",
-    date: "2025-09-13",
-    product: "Kinh dị",
-    quantity: 0,
-    user: "Admin",
-    note: "Điều chỉnh tồn kho",
-    details: [
-      { field: "Số lượng cũ", value: 50 },
-      { field: "Số lượng mới", value: 45 },
-    ],
-  },
-];
+import { layTatCaGiaoDichKho } from "../../lib/giao-dich-kho-apis";
 
 function QuanLiGiaoDichKho() {
-  const [transactions] = useState(initialTransactions);
-  const [viewId, setViewId] = useState(null);
 
-  const handleView = (id) => {
-    setViewId(viewId === id ? null : id);
-  };
+  // Biến trạng thái để lưu trữ danh sách giao dịch kho
+  const [giaoDichKho, setGiaoDichKho] = useState([]);
+
+  // Nạp tất cả giao dịch kho từ server 
+  useEffect(() => {
+    const napDuLieuNhapKho = async () => {
+      const phanHoiTuSever = await layTatCaGiaoDichKho();
+      if (phanHoiTuSever && phanHoiTuSever.success) {
+        setGiaoDichKho(phanHoiTuSever.data);
+      }
+    };
+    napDuLieuNhapKho();
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -64,62 +30,41 @@ function QuanLiGiaoDichKho() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="py-2 px-3">#</th>
-                <th className="py-2 px-3">Loại giao dịch</th>
-                <th className="py-2 px-3">Ngày</th>
+              <tr className="border-b">
+                <th className="py-2 px-3">Mã GD</th>
+                <th className="py-2 px-3">Loại GD</th>
+                <th className="py-2 px-3">Ngày GD</th>
                 <th className="py-2 px-3">Sản phẩm</th>
                 <th className="py-2 px-3">Số lượng</th>
                 <th className="py-2 px-3">Người thực hiện</th>
                 <th className="py-2 px-3">Ghi chú</th>
-                <th className="py-2 px-3">Hành động</th>
               </tr>
             </thead>
             <tbody>
-              {transactions.map((tran, idx) => (
-                <React.Fragment key={tran.id}>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="py-2 px-3 font-bold">{idx + 1}</td>
-                    <td className="py-2 px-3">{tran.type}</td>
-                    <td className="py-2 px-3">{tran.date}</td>
-                    <td className="py-2 px-3">{tran.product}</td>
-                    <td className="py-2 px-3">{tran.quantity}</td>
-                    <td className="py-2 px-3">{tran.user}</td>
-                    <td className="py-2 px-3">{tran.note}</td>
-                    <td className="py-2 px-3">
-                      <button
-                        onClick={() => handleView(tran.id)}
-                        className="text-blue-600 hover:underline flex items-center gap-1"
-                        title="Xem chi tiết"
-                      >
-                        <FaEye />
-                        Xem
-                      </button>
-                    </td>
-                  </tr>
-                  {viewId === tran.id && (
-                    <tr className="bg-gray-50">
-                      <td colSpan={8} className="p-4">
-                        <div className="border-l-4 border-[#00809D] pl-4">
-                          <h3 className="font-bold text-[#00809D] mb-2">
-                            Chi tiết giao dịch
-                          </h3>
-                          <ul className="list-disc ml-6">
-                            {tran.details.map((d, i) => (
-                              <li key={i} className="mb-1">
-                                <span className="font-semibold">
-                                  {d.field}:
-                                </span>{" "}
-                                {d.value}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+              {giaoDichKho && giaoDichKho.length > 0 ? (
+                giaoDichKho.map((gd) => (
+                    <tr className="border-b hover:bg-gray-50" key={gd.maGiaoDich}>
+                      <td className="py-2 px-3">{gd.maGiaoDich}</td>
+                      <td className="py-2 px-3">{gd.loaiGiaoDich}</td>
+                      <td className="py-2 px-3">
+                        {new Date(gd.ngayGiaoDich).toLocaleDateString()}
                       </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              ))}
+                      <td className="py-2 px-3">{gd.tenSanPham}</td>
+                      <td className="py-2 px-3">{gd.soLuong}</td>
+                      <td className="py-2 px-3">{gd.nguoiThucHien}</td>
+                      <td className="py-2 px-3">{gd.ghiChu || "-"}</td>
+                </tr> 
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="8" 
+                    className="py-4 px-3 text-center text-gray-500"
+                  >
+                    Chưa có giao dịch kho nào.
+                  </td>
+                </tr>
+              )} 
             </tbody>
           </table>
         </div>

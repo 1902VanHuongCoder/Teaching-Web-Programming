@@ -45,6 +45,11 @@ const DonHang = sequelize.define('DonHang', {
         type: DataTypes.TEXT,
         allowNull: true
     }
+    ,
+        maGiamGiaDaSuDung: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
 }, {
     timestamps: true, // Tự động thêm createdAt và updatedAt fields
     tableName: 'don-hang'
@@ -68,7 +73,8 @@ export const DonHang_Sach = sequelize.define('DonHang_Sach', {
     donGia: {
         type: DataTypes.FLOAT,
         allowNull: false
-    }
+    }, 
+    
 }, {
     timestamps: false,
     tableName: 'don-hang_sach'

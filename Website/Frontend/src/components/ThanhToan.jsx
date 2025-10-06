@@ -241,11 +241,12 @@ function ThanhToan() {
         soLuong: item.soLuong,
         donGia: item.giaLucThem,
       })),
+      maGiamGiaDaSuDung: coupon.trim() || null, // Nếu người dùng có nhập mã giảm giá thì gửi lên, không thì gửi null
     };
 
     console.log(duLieuDonHang);
 
-        alert("Tesst"); 
+        alert("Test");
 
     // Gọi API để tạo đơn hàng (sử dụng hàm có sẵn bên lib/don-hang-apis.js)
     const response = await taoDonHangMoi(duLieuDonHang);

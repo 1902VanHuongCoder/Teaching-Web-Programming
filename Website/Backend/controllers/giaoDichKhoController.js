@@ -22,7 +22,10 @@ const capNhatSach = async (sachID, soLuong, giaNhap, giaBan) => {
         }
 
         // Cập nhật thông tin sách
-        sach.soLuongConLai = soLuong;
+        // sach.soLuongConLai = soLuong;
+        
+        sach.soLuongConLai = sach.soLuongConLai + soLuong; // Cộng dồn số lượng nhập kho
+
         sach.giaNhap = giaNhap;
         sach.giaBan = giaBan;
 
