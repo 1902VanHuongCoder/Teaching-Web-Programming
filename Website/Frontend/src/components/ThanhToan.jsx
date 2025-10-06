@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   FaTrash,
   FaPlus,
@@ -17,6 +17,7 @@ import {
   capNhatSoLuongSanPham,
   layGioHangTheoNguoiDung,
   xoaSanPhamKhoiGioHang,
+  xoaToanBoGioHang,
 } from "../lib/gio-hang-apis";
 import { useRef } from "react";
 import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
@@ -28,6 +29,7 @@ import { tinhPhiVanChuyen } from "../lib/tinh-phi-van-chuyen";
 import DieuKhoanVaQuyDinh from "./DieuKhoanVaQuyDinh";
 import { taoDonHangMoi } from "../lib/don-hang-apis";
 import PayPalButton from "./PaypalButton";
+import { GioHangContext } from "../contexts/gio-hang-context";
 
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
@@ -44,6 +46,9 @@ const PAYMENT_METHODS = [
 ];
 
 function ThanhToan() {
+    // Sử dụng dữ liệu về đơn hàng để hiển thị số lượng đơn hàng trong giỏ hàng
+    const { setGioHang } = useContext(GioHangContext);
+
   // Ref để lưu timeout ID cho debouncing
   const timeoutRef = useRef(null);
 
@@ -182,9 +187,21 @@ function ThanhToan() {
     return now.toLocaleDateString(); // 10/02/2025
   };
 
+  // Hàm để xóa dữ liệu giỏ hàng 
+  const xoaDuLieuGioHang = async (nguoiDungID) => { 
+      // Xóa dữ liệu giỏ hàng trên UI trước 
+      setGioHang([]);
+
+      // Gọi API để xóa dữ liệu giỏ hàng trên sever
+      const phanHoiTuSever = await xoaToanBoGioHang(nguoiDungID);
+      if(phanHoiTuSever && phanHoiTuSever.success) {
+          console.log("Xóa dữ liệu giỏ hàng thành công!");
+      } else {
+          console.log("Lỗi khi xóa dữ liệu giỏ hàng:", phanHoiTuSever.message);
+      }
+  } 
+
   const datHang = async (e) => {
-
-
 
     if(e) { e.preventDefault(); }// Ngăn chặn hành vi mặc định của form (tải lại trang)
 
@@ -205,7 +222,7 @@ function ThanhToan() {
     // Chuẩn bị dữ liệu để tạo đơn hàng gửi lên sever
     const duLieuDonHang = {
       nguoiDungID: khachHang.nguoiDungID,
-      tenKhachHang: khachHang.tenNguoiDung,
+      tenKhachHang: customer.name,
       soDienThoaiKH: customer.phone,
       ngayDat: new Date(),
       tongTien: total,
@@ -238,6 +255,9 @@ function ThanhToan() {
     } else {
       alert("Đặt hàng thất bại!");
     }
+
+    // Chạy hàm xóa dữ liệu giỏ hàng here
+    xoaDuLieuGioHang(khachHang.nguoiDungID);  
   };
 
   // Nạp dữ liệu giỏ hàng từ sever sử dụng useEffect

@@ -1,34 +1,8 @@
-import React, { useState } from "react";
-
-// Demo/mock data for orders
-const initialOrders = [
-  {
-    id: 1,
-    customer: "Nguyễn Văn A",
-    phone: "0901234567",
-    address: "123 Lê Lợi, Q.1, TP.HCM",
-    date: "2025-09-10",
-    total: 250000,
-    status: "Chờ xác nhận",
-    items: [
-      { name: "Thần Đồng Đất Phương Nam", qty: 2, price: 100000 },
-      { name: "Truyện tranh", qty: 1, price: 50000 },
-    ],
-  },
-  {
-    id: 2,
-    customer: "Trần Thị B",
-    phone: "0912345678",
-    address: "456 Nguyễn Trãi, Q.5, TP.HCM",
-    date: "2025-09-11",
-    total: 180000,
-    status: "Đang giao",
-    items: [
-      { name: "Ngôn tình", qty: 1, price: 80000 },
-      { name: "Kinh dị", qty: 2, price: 50000 },
-    ],
-  },
-];
+import React, { useEffect } from "react";
+import {
+  capNhatTrangThaiDonHang,
+  nhanDonHangCuaMotNguoiDung,
+} from "../../lib/don-hang-apis";
 
 const STATUS_OPTIONS = [
   "Chờ xác nhận",
@@ -39,20 +13,54 @@ const STATUS_OPTIONS = [
 ];
 
 function QuanLiDonHang() {
-  const [orders, setOrders] = useState(initialOrders); 
+  
+  // Biến trạng thái để lưu trữ danh sách đơn hàng của người dùng
+  const [userOrders, setUserOrders] = React.useState([]);
 
-  // Update order status
-  const handleStatusChange = (id, newStatus) => {
-    // Tạo một bản sau của cái mảng orders với trạng thái mới cho đơn hàng được cập nhật 
-    const danhSachDonHangDaCapNhat = orders.map((order) => {
-        if(order.id === id) {
-            return { ...order, status: newStatus };
-        }else{
-            return order;
-        }
+  // Helper function để định dạng lại ngày tháng
+  function formatDate(dateString) {
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  }
+
+  // Xử lý thay đổi trạng thái đơn hàng
+  const handleStatusChange = async (donHangID, newStatus) => {
+    // Thay đổi trạng thái trên giao diện trước
+    const danhSachDonHangDaCapNhat = userOrders.map((order) => {
+      if (order.donHangID === donHangID) {
+        return { ...order, trangThai: newStatus };
+      } else {
+        return order;
+      }
     });
-    setOrders(danhSachDonHangDaCapNhat); 
+    setUserOrders(danhSachDonHangDaCapNhat);
+
+    // Gọi API để cập nhật trạng thái đơn hàng trên server
+    const phanHoiTuSever = await capNhatTrangThaiDonHang(donHangID, newStatus);
+
+    if (phanHoiTuSever && phanHoiTuSever.success) {
+      alert("Cập nhật trạng thái đơn hàng thành công!");
+    } else {
+      alert(
+        "Lỗi khi cập nhật trạng thái đơn hàng trên server:",
+        phanHoiTuSever.message
+      );  
+    }
   };
+
+  useEffect(() => {
+    // Gọi hàm có sẵn trong file don-hang-apis.js để lấy đơn hàng của người dùng từ server
+    async function napDuLieuDonHangCuaNguoiDung() {
+      // Lấy ID người dùng từ localStorage
+      const user = localStorage.getItem("user");
+      const nguoiDungID = JSON.parse(user).nguoiDungID;
+
+      const donHang = await nhanDonHangCuaMotNguoiDung(nguoiDungID);
+      console.log("Đơn hàng lấy từ server:", donHang);
+      setUserOrders(donHang);
+    }
+    napDuLieuDonHangCuaNguoiDung();
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -78,21 +86,23 @@ function QuanLiDonHang() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order, idx) => (
+              {userOrders &&
+                userOrders.length > 0 &&
+                userOrders.map((order, idx) => (
                   <tr key={idx} className="border-b hover:bg-gray-50">
                     <td className="py-2 px-3 font-bold">{idx + 1}</td>
-                    <td className="py-2 px-3">{order.customer}</td>
-                    <td className="py-2 px-3">{order.phone}</td>
-                    <td className="py-2 px-3">{order.address}</td>
-                    <td className="py-2 px-3">{order.date}</td>
+                    <td className="py-2 px-3">{order.tenKhachHang}</td>
+                    <td className="py-2 px-3">{order.soDienThoaiKH}</td>
+                    <td className="py-2 px-3">{order.diaChiGiaoHang}</td>
+                    <td className="py-2 px-3">{formatDate(order.ngayDat)}</td>
                     <td className="py-2 px-3">
-                      {order.total.toLocaleString()} VNĐ
+                      {order.tongTien.toLocaleString()} VNĐ
                     </td>
                     <td className="py-2 px-3">
                       <select
-                        value={order.status}
+                        value={order.trangThai}
                         onChange={(e) =>
-                          handleStatusChange(order.id, e.target.value)
+                          handleStatusChange(order.donHangID, e.target.value)
                         }
                         className="border rounded p-1"
                       >
@@ -111,10 +121,10 @@ function QuanLiDonHang() {
                         <div className="mt-2 bg-gray-50 p-2 rounded">
                           <strong>Sản phẩm:</strong>
                           <ul className="list-disc ml-5">
-                            {order.items.map((item, i) => (
+                            {order.Saches.map((item, i) => (
                               <li key={i}>
-                                {item.name} x {item.qty} (
-                                {item.price.toLocaleString()} VNĐ)
+                                {item.tenSach} x {item.DonHang_Sach.soLuong} (
+                                {order.tongTien.toLocaleString()} VNĐ)
                               </li>
                             ))}
                           </ul>
@@ -122,8 +132,7 @@ function QuanLiDonHang() {
                       </details>
                     </td>
                   </tr>
-             
-              ))}
+                ))}
             </tbody>
           </table>
         </div>

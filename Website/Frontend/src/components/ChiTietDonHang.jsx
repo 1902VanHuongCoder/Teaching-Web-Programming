@@ -3,34 +3,44 @@ import { useParams, Link } from "react-router-dom";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import { FaArrowLeft, FaCheckCircle } from "react-icons/fa";
-import { layDonHangTheoID } from "../lib/don-hang-apis";
-
+import { capNhatTrangThaiDonHang, layDonHangTheoID } from "../lib/don-hang-apis";
 
 function ChiTietDonHang() {
   const { id } = useParams();
 
-  // Tạo biến trạng thái lưu dữ liệu chi tiết đơn hàng 
+  // Tạo biến trạng thái lưu dữ liệu chi tiết đơn hàng
   const [duLieuDonHang, setDuLieuDonHang] = useState(null);
 
-  // Nạp dữ liệu đơn hàng từ server dựa vào id (sử dụng useEffect trong thực tế) 
+  // Nạp dữ liệu đơn hàng từ server dựa vào id (sử dụng useEffect trong thực tế)
   useEffect(() => {
-     const napDonHang = async () => {
-        const duLieuDonHang = await layDonHangTheoID(id);
-        if(duLieuDonHang && duLieuDonHang.success) {
-            // Xử lý dữ liệu đơn hàng nhận được từ server
-            console.log("Dữ liệu đơn hàng:", duLieuDonHang.data);
-            setDuLieuDonHang(duLieuDonHang.data);
-        }
+    const napDonHang = async () => {
+      const duLieuDonHang = await layDonHangTheoID(id);
+      if (duLieuDonHang && duLieuDonHang.success) {
+        // Xử lý dữ liệu đơn hàng nhận được từ server
+        console.log("Dữ liệu đơn hàng:", duLieuDonHang.data);
+        setDuLieuDonHang(duLieuDonHang.data);
+      }
     };
     napDonHang();
-  },[id]);
+  }, [id]);
 
-    // Helper function để định dạng lại ngày tháng
+  // Helper function để định dạng lại ngày tháng
   function formatDate(dateString) {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   }
 
+  // Xử lý hủy đơn hàng
+  const xuLyHuyDonHang = async (donHangID, trangThaiMoi) => {
+    const phanHoiTuSever = await capNhatTrangThaiDonHang(donHangID, trangThaiMoi);
+    if (phanHoiTuSever && phanHoiTuSever.success) {
+      alert("Hủy đơn hàng thành công!");
+      // Cập nhật lại trạng thái đơn hàng trong giao diện
+      setDuLieuDonHang({ ...duLieuDonHang, trangThai: trangThaiMoi });
+    } else {
+      alert("Lỗi khi hủy đơn hàng:", phanHoiTuSever.message);
+    }
+  };
 
   return (
     <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
@@ -42,10 +52,14 @@ function ChiTietDonHang() {
         >
           <FaArrowLeft /> Quay lại lịch sử đơn hàng
         </Link>
-        <div className="bg-white rounded-xl shadow-xl p-8 mb-8">
+        <div className="relative bg-white rounded-xl shadow-xl p-8 mb-8">
+          {duLieuDonHang && duLieuDonHang.trangThai === "Chờ xác nhận" && (
+            <button onClick={() => xuLyHuyDonHang(duLieuDonHang.donHangID, "Đã hủy")} className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+              Hủy đơn hàng
+            </button>
+          )}
           <h1 className="text-2xl font-bold text-[#00809D] mb-4">
-            Chi Tiết Đơn Hàng #
-            {duLieuDonHang ? duLieuDonHang.donHangID : id}
+            Chi Tiết Đơn Hàng #{duLieuDonHang ? duLieuDonHang.donHangID : id}
           </h1>
           <div className="mb-2 text-gray-700">
             Ngày đặt:{" "}
@@ -100,7 +114,9 @@ function ChiTietDonHang() {
                       {item.tenSach}
                     </td>
                     <td className="py-3">{item.DonHang_Sach.soLuong}</td>
-                    <td className="py-3">{item.DonHang_Sach.donGia.toLocaleString()}đ</td>
+                    <td className="py-3">
+                      {item.DonHang_Sach.donGia.toLocaleString()}đ
+                    </td>
                     <td className="py-3">
                       {(
                         item.DonHang_Sach.donGia * item.DonHang_Sach.soLuong
@@ -108,7 +124,7 @@ function ChiTietDonHang() {
                       đ
                     </td>
                     <td className="py-3">
-                        <button>Bình luận</button>
+                      <button>Bình luận</button>
                     </td>
                   </tr>
                 ))}
