@@ -1,0 +1,11 @@
+1. Cho phép bình luận 1 sản phẩm 
+    + Tạo bình luận modal 
+    + Tạo binh-luan-apis 
+
+2. Hiển thị bình luận trong chi tiết sản phẩm 
+
+3. Quản lý danh sách bình luận trong phần quản trị 
+
+4. Hiển thị các thống kê ở trang quản lý chung 
+
+

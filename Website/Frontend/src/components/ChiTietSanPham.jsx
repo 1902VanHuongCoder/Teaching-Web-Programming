@@ -43,7 +43,7 @@ function ChiTietSanPham() {
           // Chuyển dữ liệu hình ảnh (images) về dạng mảng 
           chiTietSanPham.images = JSON.parse(chiTietSanPham.images);
 
-          console.log("Chi tiết sản phẩm từ server:", chiTietSanPham);
+          console.log("Chi tiết sản phẩm từ server:", chiTietSanPham); 
 
           setChiTietSanPham(chiTietSanPham);
         }
@@ -190,27 +190,35 @@ function ChiTietSanPham() {
       <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
         <h3 className="text-2xl font-bold text-[#00809D] mb-4">Bình luận</h3>
         <div className="space-y-4">
-          {/* {chiTietSanPham.binhLuan.map(
-            (
-              c,
-              idx // comment, c = {user: ..., rating: ..., comment: ...}
-            ) => (
-              <div key={idx} className="border-b pb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[#00809D]">{c.user}</span>
+          {chiTietSanPham.binhLuan && chiTietSanPham.binhLuan.length > 0 ? (
+            chiTietSanPham.binhLuan.map((binhLuan) => (
+              <div key={binhLuan.binhLuanID} className="border-b pb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-semibold">
+                    {binhLuan.NguoiDung?.tenNguoiDung || "Người dùng ẩn danh"}
+                  </span>
                   <span className="text-yellow-400 flex">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <FaStar
                         key={i}
-                        className={i < c.rating ? "" : "text-gray-300"}
+                        className={
+                          i < binhLuan.danhGia ? "" : "text-gray-300"
+                        }
                       />
                     ))}
                   </span>
+                  <span className="text-gray-600 ml-2 text-sm">
+                    {new Date(binhLuan.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
-                <p className="text-gray-700 ml-2">{c.comment}</p>
+                <p className="text-gray-800">{binhLuan.noiDung}</p>
               </div>
-            )
-          )} */}
+            ))
+          ) : (
+            <p className="text-gray-600">Chưa có bình luận nào.</p>
+          )}
+        </div>
+        <div className="mt-6">
         </div>
       </div>
 

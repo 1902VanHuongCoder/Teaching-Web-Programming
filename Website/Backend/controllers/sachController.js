@@ -1,3 +1,4 @@
+import BinhLuan from "../models/BinhLuan.js";
 import Sach from "../models/Sach.js";
 
 export const nhanTatCaCacQuyenSach = async (req, res) => {
@@ -98,7 +99,14 @@ export const xoaSach = async (req, res) => {
 export const layChiTietSach = async (req, res) => {
     try {
         const { sachID } = req.params;
+
+        // Trả về dữ liệu sách kèm theo bình luận và đánh giá  
         const sach = await Sach.findByPk(sachID);
+        
+        sach.dataValues.binhLuan = await BinhLuan.findAll({ where: { sachID: sachID } });
+
+        console.log(sach);
+
         if (!sach) {
             return res.status(404).json({ error: "Sách không tồn tại." });
         }

@@ -13,6 +13,7 @@ import tinTucRoutes from './routes/tinTucRoutes.js';
 import hinhAnhRoutes from './routes/hinhAnhRoutes.js';
 import gioHangRoutes from './routes/gioHangRoutes.js';
 import phuongThucGiaoHangRoutes from './routes/phuongThucGiaoHangRoutes.js';
+import thongKeRoutes from './routes/thongKeRoutes.js';
 
 // Đọc biến môi trường từ file .env 
 dotenv.config(); 
@@ -40,6 +41,7 @@ app.use("/api/tin-tuc", tinTucRoutes);
 app.use("/api/hinh-anh", hinhAnhRoutes); 
 app.use("/api/gio-hang", gioHangRoutes); 
 app.use("/api/phuong-thuc-giao-hang", phuongThucGiaoHangRoutes);
+app.use("/api/thong-ke", thongKeRoutes);
 
 // Lắng nghe các kết nối đến server 
 const PORT = process.env.PORT || 3001;
