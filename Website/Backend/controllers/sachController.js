@@ -14,7 +14,24 @@ export const nhanTatCaCacQuyenSach = async (req, res) => {
 // Hàm để thêm một quyển sách vào cửa hàng 
 export const taoSachMoi = async (req, res) => {
     try {
-        const  { tenSach, tacGia, nhaXuatBan, ngayXuatBan, ngonNgu, loaiSach, soTrang, dinhDang, soLuongConLai, ISBN13, giaNhap, giaBan, giaGiam, images  } = req.body;  
+        const {
+          tenSach,
+          tacGia,
+          nhaXuatBan,
+          ngayXuatBan,
+          ngonNgu,
+          loaiSach,
+          soTrang,
+          dinhDang,
+          soLuongConLai,
+          ISBN13,
+          giaNhap,
+          giaBan,
+          giaGiam,
+          images,
+          
+          moTa,
+        } = req.body;  
     
         const sachMoi = await Sach.create({
             tenSach,
@@ -30,7 +47,9 @@ export const taoSachMoi = async (req, res) => {
             giaNhap,
             giaBan,
             giaGiam,
-            images: JSON.stringify(images) // Lưu mảng dưới dạng chuỗi JSON
+            images: JSON.stringify(images), // Lưu mảng dưới dạng chuỗi JSON
+
+             moTa
         });
         res.status(201).json(sachMoi);
     }catch (error) {
@@ -43,7 +62,24 @@ export const taoSachMoi = async (req, res) => {
 export const capNhatSach = async (req, res) => {
     try {
         const { id } = req.params; 
-        const { tenSach, tacGia, nhaXuatBan, ngayXuatBan, ngonNgu, loaiSach, soTrang, dinhDang, soLuongConLai, ISBN13, giaBan, giaNhap, giaGiam, images } = req.body;
+        const {
+          tenSach,
+          tacGia,
+          nhaXuatBan,
+          ngayXuatBan,
+          ngonNgu,
+          loaiSach,
+          soTrang,
+          dinhDang,
+          soLuongConLai,
+          ISBN13,
+          giaBan,
+          giaNhap,
+          giaGiam,
+          images,
+
+          moTa,
+        } = req.body;
 
         const sach = await Sach.findByPk(id); 
         if (!sach) {
@@ -65,6 +101,8 @@ export const capNhatSach = async (req, res) => {
         sach.giaNhap = giaNhap;
         sach.giaGiam = giaGiam;
         sach.images = JSON.stringify(images); // Lưu mảng dưới dạng chuỗi JSON
+
+        sach.moTa = moTa 
 
         await sach.save(); 
         res.json(sach);

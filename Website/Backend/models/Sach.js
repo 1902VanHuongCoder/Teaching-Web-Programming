@@ -67,6 +67,13 @@ const Sach = sequelize.define(
       type: DataTypes.TEXT, // ["url1", "url2", ...]
       allowNull: false,
     },
+
+
+    // Thêm 1 trường mới 
+    moTa: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    }
   },
   {
     tableName: "sach",

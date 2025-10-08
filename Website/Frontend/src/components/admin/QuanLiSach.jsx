@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { capNhatSach, nhanTatCaCacQuyenSach, themSach, xoaSach } from "../../lib/sach-apis";
+import {
+  capNhatSach,
+  nhanTatCaCacQuyenSach,
+  themSach,
+  xoaSach,
+} from "../../lib/sach-apis";
 import { uploadHinhAnh, xoaHinhAnhCloudinary } from "../../lib/hinh-anh-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 const LOAI_SACH = [
   "Truyện tranh",
@@ -16,10 +23,11 @@ const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"]; // Định dạn
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"]; // Ngôn ngữ sách
 
 function QuanLiSach() {
-  const [books, setBooks] = useState([]); // Mảng chứa tất cả các quyển sách 
-  const [form, setForm] = useState({ // Dữ liệu form để thêm hoặc cập nhật sách
+  const [books, setBooks] = useState([]); // Mảng chứa tất cả các quyển sách
+  const [form, setForm] = useState({
+    // Dữ liệu form để thêm hoặc cập nhật sách
     sachID: null,
-    images: [], // Mảng chứa các URL hình ảnh, [{public_id, url}, ...], [file, file] 
+    images: [], // Mảng chứa các URL hình ảnh, [{public_id, url}, ...], [file, file]
     tenSach: "",
     tacGia: "",
     nhaXuatBan: "",
@@ -30,11 +38,20 @@ function QuanLiSach() {
     dinhDang: "Bìa mềm",
     soLuongConLai: 0,
     giaNhap: 0,
-    giaBan: 0, 
+    giaBan: 0,
     giaGiam: 0,
     ISBN13: "",
+    moTa: ""
   });
   const [editId, setEditId] = useState(null);
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: "",
+    onUpdate: ({ editor }) => {
+      setForm({ ...form, moTa: editor.getHTML() });
+    },
+  });
 
   // Handle form input
   const handleChange = (e) => {
@@ -50,7 +67,7 @@ function QuanLiSach() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Kiểm tra dữ liệu form xem đã đáp ứng đầy đủ chưa 
+    // Kiểm tra dữ liệu form xem đã đáp ứng đầy đủ chưa
     console.log("Dữ liệu form: ", form);
 
     if (editId) {
@@ -58,9 +75,10 @@ function QuanLiSach() {
         books.map((b) => (b.id === editId ? { ...form, id: editId } : b)) // Tìm và cập nhật quyển sách có id trùng với editId (id của quyển sách đang được chỉnh sửa
       );
       // Nếu form.images có chứa các file (nghĩa là người dùng đã chọn hình ảnh mới để cập nhật) thì chúng ta sẽ upload hình ảnh mới lên Cloudinary
-      if(form.images.length > 0) {
+      if (form.images.length > 0) {
         const publicIDvaUrl = []; // [{ public_id, url }, ... ]
-        for(const img of form.images) { // Lặp qua từng hình (file) trong mảng images
+        for (const img of form.images) {
+          // Lặp qua từng hình (file) trong mảng images
           const result = await uploadHinhAnh(img);
           publicIDvaUrl.push(result);
         }
@@ -68,22 +86,23 @@ function QuanLiSach() {
       }
       // Nếu form.images là mảng rỗng (nghĩa là người dùng không chọn hình ảnh mới để cập nhật) thì chúng ta sẽ giữ nguyên hình ảnh cũ
       if (form.images.length === 0) {
-        const bookToEdit = books.find((b) => b.sachID === editId); // Tìm quyển sách đang được chỉnh sửa trong mảng books 
+        const bookToEdit = books.find((b) => b.sachID === editId); // Tìm quyển sách đang được chỉnh sửa trong mảng books
         form.images = bookToEdit.images; // Giữ nguyên hình ảnh cũ
       }
 
-      await capNhatSach(editId, form); 
+      await capNhatSach(editId, form);
       alert("Cập nhật sách thành công!");
 
       setEditId(null);
     } else {
       setBooks([...books, { ...form, id: Date.now(), images: form.images }]);
       // Gọi API để upload hình ảnh lên server và lấy về URL của hình ảnh đó
-      
-      const publicIDvaUrl = []; // [{ public_id, url }, ... ] 
-      if(form.images.length > 0) { 
-        for(const img of form.images) { // Lặp qua từng hình (file) trong mảng images 
-          const result = await uploadHinhAnh(img); // Gọi API upload hình ảnh để upload hình ảnh lên Cloudinary 
+
+      const publicIDvaUrl = []; // [{ public_id, url }, ... ]
+      if (form.images.length > 0) {
+        for (const img of form.images) {
+          // Lặp qua từng hình (file) trong mảng images
+          const result = await uploadHinhAnh(img); // Gọi API upload hình ảnh để upload hình ảnh lên Cloudinary
           console.log("Đang upload hình ảnh lên Cloud");
           publicIDvaUrl.push(result); // Lưu thông tin hình ảnh (public_id và url) vào mảng
         }
@@ -92,6 +111,7 @@ function QuanLiSach() {
       form.images = publicIDvaUrl; // Chuyển mảng thành chuỗi JSON để lưu vào database
 
       // Gọi API để thêm sách vào database
+
       await themSach(form);
 
       // Sau khi thêm sách thành công, chúng ta có thể làm gì đó, ví dụ như hiển thị thông báo
@@ -126,6 +146,13 @@ function QuanLiSach() {
 
     setForm({ ...book, ngayXuatBan: formattedDate, images: [] });
     setEditId(book.sachID);
+
+    // Khởi tạo lại giá trị cho text editor khi edit một sản phẩm
+    if (editor && book.moTa) {
+      editor.commands.setContent(book.moTa);
+    } else {
+      editor.commands.setContent("");
+    }
   };
 
   // Delete book
@@ -135,15 +162,16 @@ function QuanLiSach() {
     // Xóa hình ảnh của quyển sách khỏi Cloudinary
     const bookToDelete = books.find((b) => b.sachID === sachID);
 
-    console.log("Quyển sách cần xóa:", bookToDelete); 
+    console.log("Quyển sách cần xóa:", bookToDelete);
 
-    if (bookToDelete) { // Nếu tìm thấy quyển sách cần xóa 
+    if (bookToDelete) {
+      // Nếu tìm thấy quyển sách cần xóa
       bookToDelete.images.forEach(async (img) => {
-        console.log("Đang xóa hình ảnh khỏi Cloudinary:", img); 
+        console.log("Đang xóa hình ảnh khỏi Cloudinary:", img);
         await xoaHinhAnhCloudinary(img.public_id);
       });
     }
-    // Xóa dữ liệu quyển sách khỏi database 
+    // Xóa dữ liệu quyển sách khỏi database
     await xoaSach(sachID); // Gọi API xóa quyển sách khỏi database
     alert("Xóa sách thành công!");
   };
@@ -153,12 +181,12 @@ function QuanLiSach() {
     const napDuLieuSach = async () => {
       const booksData = await nhanTatCaCacQuyenSach();
 
-      // Lặp qua mảng kết quản để chúng ta chuyển trường images từ chuỗi JSON thành mảng 
-      booksData.forEach(book => {
-        if(book.images) {
-          book.images = JSON.parse(book.images); // Chuyển chuỗi JSON thành mảng  
+      // Lặp qua mảng kết quản để chúng ta chuyển trường images từ chuỗi JSON thành mảng
+      booksData.forEach((book) => {
+        if (book.images) {
+          book.images = JSON.parse(book.images); // Chuyển chuỗi JSON thành mảng
         } else {
-          book.images = []; // Nếu không có trường images thì gán mảng rỗng 
+          book.images = []; // Nếu không có trường images thì gán mảng rỗng
         }
       });
 
@@ -169,29 +197,25 @@ function QuanLiSach() {
     napDuLieuSach();
   }, []);
 
-  // Kiểm tra 1 biến có phải là 1 file hay không 
+  // Kiểm tra 1 biến có phải là 1 file hay không
   const isFile = (obj) => {
     return obj instanceof File;
-  }
+  };
 
+  // Tạo thêm 1 biến trạng thái để lưu dữ liệu danh mục sách
+  const [danhMucSach, setDanhMucSach] = useState([]);
 
-
-  // Tạo thêm 1 biến trạng thái để lưu dữ liệu danh mục sách 
-  const [danhMucSach, setDanhMucSach] = useState([]); 
-
-  // Nạp dữ liệu danh mục sách 
+  // Nạp dữ liệu danh mục sách
   useEffect(() => {
     const napDanhMucSach = async () => {
       const duLieuDM = await nhanTatCaDanhMucSach();
-      if(duLieuDM) {
+      if (duLieuDM) {
         console.log("Dữ liệu danh mục sách:", duLieuDM);
-        setDanhMucSach(duLieuDM); 
+        setDanhMucSach(duLieuDM);
       }
-    }
+    };
     napDanhMucSach();
   }, []);
-
-
 
   return (
     <div className="w-full mx-auto ">
@@ -306,7 +330,7 @@ function QuanLiSach() {
             ))}
           </select>
           <label className="block font-semibold mb-1">Loại sách</label>
-          
+
           <select
             name="loaiSach"
             value={form.loaiSach}
@@ -319,7 +343,6 @@ function QuanLiSach() {
               </option>
             ))}
           </select>
-
 
           <label className="block font-semibold mb-1">Số trang</label>
           <input
@@ -391,6 +414,91 @@ function QuanLiSach() {
             className="w-full border rounded p-2 mb-3"
             required
           />
+
+          <div>
+            <label className="block font-semibold mb-1">Mô tả sách</label>
+            <div>
+              <div className="mb-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleBold().run()}
+                  className={
+                    editor.isActive("bold") ? "font-bold text-blue-600" : ""
+                  }
+                >
+                  B
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
+                  className={
+                    editor.isActive("italic") ? "italic text-blue-600" : ""
+                  }
+                >
+                  I
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleUnderline().run()}
+                  className={
+                    editor.isActive("underline")
+                      ? "underline text-blue-600"
+                      : ""
+                  }
+                >
+                  U
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = window.prompt("Nhập URL:");
+                    if (url)
+                      editor.chain().focus().setLink({ href: url }).run();
+                  }}
+                >
+                  Link
+                </button>
+                {/* <button
+                  type="button"
+                  onClick={() => {
+                    const url = window.prompt("Nhập URL hình ảnh:");
+                    if (url)
+                      editor.chain().focus().setImage({ src: url }).run();
+                  }}
+                >
+                  Ảnh
+                </button> */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    editor.chain().focus().toggleBulletList().run()
+                  }
+                  className={
+                    editor.isActive("bulletList") ? "text-blue-600" : ""
+                  }
+                >
+                  • Danh sách
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    editor.chain().focus().toggleOrderedList().run()
+                  }
+                  className={
+                    editor.isActive("orderedList") ? "text-blue-600" : ""
+                  }
+                >
+                  1. Danh sách
+                </button>
+              </div>
+
+              <EditorContent
+                editor={editor}
+                className="tiptap-content min-h-[300px] p-3 focus:ouline-none rounded-md border border-gray-300"
+              />
+            </div>
+          </div>
+
           <button
             type="submit"
             className="bg-[#00809D] text-white px-6 py-2 rounded font-semibold mt-2"

@@ -1,0 +1,9 @@
+1. Thêm text editor vào trang quản trị thêm sản phẩm để thêm mô tả sản phẩm 
+    + Thêm một trường dữ liệu mới vào Sach model để lưu mô tả sản phẩm 
+    + Chỉnh sửa các controller liên quan để phù hợp với những thay đổi 
+    + Cho phép chỉnh sửa phần mô tả sản phẩm 
+
+2. Cho phép hiển thị ra thông tin chi tiết sản phẩm ở phần xem chi tiết sản phẩm 
+
+3. Ẩn thông tin liên quan đến phần tin tức 
+

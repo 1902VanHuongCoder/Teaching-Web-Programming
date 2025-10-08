@@ -155,10 +155,20 @@ function ChiTietSanPham() {
             </div>
           </div>
           <div className="flex items-center gap-4 mt-4">
-            <span className={`text-2xl text-[#00f821] font-bold ${chiTietSanPham.giaGiam ? "" : "hidden"}`}>
+            <span
+              className={`text-2xl text-[#00f821] font-bold ${
+                chiTietSanPham.giaGiam ? "" : "hidden"
+              }`}
+            >
               {chiTietSanPham.giaGiam.toLocaleString()} VNĐ
             </span>
-            <span className={`text-xl ${chiTietSanPham.giaGiam ? "text-gray-400 line-through" : "text-[#00f821] font-bold"}`}>
+            <span
+              className={`text-xl ${
+                chiTietSanPham.giaGiam
+                  ? "text-gray-400 line-through"
+                  : "text-[#00f821] font-bold"
+              }`}
+            >
               {chiTietSanPham.giaBan.toLocaleString()} VNĐ
             </span>
           </div>
@@ -186,6 +196,18 @@ function ChiTietSanPham() {
         </div>
       </div>
 
+      <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
+        <h3 className="text-2xl font-bold text-[#00809D] mb-4">
+          Mô tả sản phẩm
+        </h3>
+        <div
+          className="text-gray-700 prose max-w-none tiptap-content"
+          dangerouslySetInnerHTML={{
+            __html: chiTietSanPham.moTa || "Chưa có mô tả cho sản phẩm này.",
+          }}
+        />
+      </div>
+
       {/* Bình luận */}
       <div className="max-w-6xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
         <h3 className="text-2xl font-bold text-[#00809D] mb-4">Bình luận</h3>
@@ -201,9 +223,7 @@ function ChiTietSanPham() {
                     {Array.from({ length: 5 }).map((_, i) => (
                       <FaStar
                         key={i}
-                        className={
-                          i < binhLuan.danhGia ? "" : "text-gray-300"
-                        }
+                        className={i < binhLuan.danhGia ? "" : "text-gray-300"}
                       />
                     ))}
                   </span>
@@ -218,8 +238,7 @@ function ChiTietSanPham() {
             <p className="text-gray-600">Chưa có bình luận nào.</p>
           )}
         </div>
-        <div className="mt-6">
-        </div>
+        <div className="mt-6"></div>
       </div>
 
       {/* Sách liên quan */}
